@@ -1,0 +1,77 @@
+
+
+.App {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  overflow: hidden;
+  background-color: rgb(40,40,40);
+  color: rgb(230,230,230);
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+}
+
+.left-side {
+  width: 50%;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.right-side {
+  width: 50%;
+  height: 100%;
+  position: fixed;
+  right: 0;
+  top: 0;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.upload-button {
+  margin-top: 20px;
+}
+
+canvas {
+  border: 1px solid black;
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+.slideshow-container {
+  border: 1px solid rgb(228, 187, 187);
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  font-weight: 2vb;
+}
+
+.slideshow-content {
+  border: 1px solid white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.button{
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+}
+
+.prev{
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  margin-left: 2vw;
+}
+
+.next{
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  margin-left: 0.5vw;
+}
