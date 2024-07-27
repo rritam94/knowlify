@@ -30,7 +30,7 @@ def complete_api_request(prompt, pdf):
     }
 
     body = str.encode(json.dumps(data))
-    url = 'https://knowlify-serverless.eastus2.inference.ai.azure.com/v1/chat/completions'
+    url = 'https://Meta-Llama-3-1-70B-Instruct-yirc-serverless.eastus2.inference.ai.azure.com/v1/chat/completions'
     api_key = 'r969yiozSSSCFTZDwuBRU2gje26A0Dac'
 
     if not api_key:
@@ -66,7 +66,7 @@ def complete_api_request(prompt, pdf):
 def generate_json(pdf_path):
     images = convert_from_path(pdf_path)
     text = ''
-    total_json = []
+    total_json = "["
 
     for i in range(len(images)):
         print(f"Processing page {i}")
@@ -77,21 +77,22 @@ def generate_json(pdf_path):
         clean_text = re.sub(r'[^a-zA-Z0-9\s.,;:!?\'"-]', '', text)
         clean_text = clean_text.replace('α', 'alpha').replace('β', 'beta').replace('γ', 'gamma').replace('δ', 'delta')  # Add more replacements as needed
 
-        content = complete_api_request(entire_prompt, clean_text)
-        print(f"API response: {content[:500]}")  # Print first 500 characters of API response for debugging
-        if content:
-            try:
-                slides = json.loads(content)
-                total_json.extend(slides)
-            except json.JSONDecodeError as e:
-                print(f"Error decoding JSON response: {e}")
-                print(f"Raw response: {content}")
+        pattern = re.compile(r'\[(.*?)\]', re.DOTALL)
 
-    json_string = json.dumps(total_json, indent=2)
-    return json_string
+        content = complete_api_request(entire_prompt, clean_text)
+        match = pattern.search(content)
+
+        # print(f"API response: {content[:500]}")  # Print first 500 characters of API response for debugging
+        if content:
+            json_str = match.group(0)
+            total_json+=(json_str)
+
+    total_json += ']'
+
+    return total_json
 
 entire_prompt = '''
-You are responsible for creating at max 2 informational presentation slides based on the provided text. It is for educational content only.
+You are responsible for creating at max 2 informational presentation slides based on the provided text
 
 Generate:
 1. Informative slide titles that accurately reflect the main idea of each section.
@@ -105,7 +106,7 @@ For general informational content:
 - Thoroughly cover all the material from the text within the slides.
 - The transcript should expand on the bullet points, offering detailed explanations, examples, and insights to enhance understanding.
 - Make sure the transcript continues smoothly from previous slides without repeating introductory phrases.
-- Do not reference non-existent images.
+- Do not reference non-existent images or tables
 
 For example problems:
 - Instead of a transcript key, you should use "steps"
@@ -117,28 +118,16 @@ For example problems:
 - Use a clear, engaging, and conversational style suitable for educational content.
 - Instead of using Greek letters, use the English translation when needed
 - Example of the desired level of detail:
-{steps: [
-  {"START": "Let's start by defining the problem and understanding what we're trying to calculate."},
-  {"WRITE": "Find the mean and standard deviation of Y' on the board"},
-  {"DURING WRITING": "We have a geometric distribution with p =.02, and we want to find the mean and standard deviation of Y."},
-  {"PAUSE": "Take a moment to think about the possible outcomes."},
-  {"WRITE": "E(Y) = 1/p' on the board"},
-  {"DURING WRITING": "We can calculate the mean of Y by using the formula E(Y) = 1/p."},
-  {"PAUSE": "Now, let's plug in the values."},
-  {"WRITE": "E(Y) = 1/.02' on the board"},
-  {"DURING WRITING": "We can plug in the values to get the final answer."},
-  {"PAUSE": "Now, let's simplify the expression."},
-  {"WRITE": "E(Y) = 50' on the board."},
-  {"DURING WRITING": "We can simplify the expression to get the final answer."},
-  {"PAUSE": "Now, let's calculate the standard deviation of Y."},
-  {"WRITE": "Standard Deviation = √(1-p)/p^2"},
-  {"DURING WRITING": "We can calculate the standard deviation of Y by using the formula σ = √(1-p)/p^2."},
-  {"PAUSE": "Now, let's plug in the values."},
-  {"WRITE": "Standard Deviation = √(1-.02)/(.02)^2"},
-  {"DURING WRITING": "We can plug in the values to get the final answer."},
-  {"PAUSE": "Now, let's simplify the expression."},
-  {"WRITE": "Standard Deviation = 49.497'"},
-  {"DURING WRITING": "We can simplify the expression to get the final answer."}
+{
+  "steps": [
+    {"START": "Let's define the problem: finding the mean and standard deviation of Y."},
+    {"WRITE": "E(Y) = 1/p' on the board."},
+    {"DURING WRITING": "For a geometric distribution with p = 0.02, we calculate the mean."},
+    {"WRITE": "E(Y) = 1/0.02' on the board."},
+    {"DURING WRITING": "This simplifies to E(Y) = 50."},
+    {"WRITE": "Standard Deviation = √(1-p)/p^2' on the board."},
+    {"DURING WRITING": "Plugging in values gives Standard Deviation = √(1-0.02)/(0.02)^2."},
+    {"WRITE": "Standard Deviation = 49.497'."}
   ]
 }
 
@@ -172,7 +161,7 @@ For problem-solving slides, the steps should be a list of objects following this
 Ensure that all brackets, parentheses, and curly braces are properly opened and closed. The entire output should be presented as a comprehensive JSON structure, with each slide represented as an object containing a title, bullet points, and a transcript (either standard or problem-solving format). Please make sure that the steps key is only included within the JSON objects representing example problems. Do not restart generating the JSON randomly.
 '''
 
-# pdf_path = 'Statistics.pdf'
+pdf_path = 'Statistics.pdf'
 
-# with open ('output2.txt', 'w', encoding='utf-8') as file:
-#     file.write(generate_json(pdf_path))
+with open ('output2.txt', 'w', encoding='utf-8') as file:
+    file.write(generate_json(pdf_path))
