@@ -5,6 +5,7 @@ import ssl
 from pdf2image import convert_from_path
 import pytesseract
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def allowSelfSignedHttps(allowed):
     if allowed and not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None):
@@ -30,7 +31,7 @@ def complete_api_request(prompt, pdf):
     }
 
     body = str.encode(json.dumps(data))
-    url = 'https://Meta-Llama-3-1-70B-Instruct-yirc-serverless.eastus2.inference.ai.azure.com/v1/chat/completions'
+    url = 'https://knowlify-serverless.eastus2.inference.ai.azure.com/v1/chat/completions'
     api_key = 'r969yiozSSSCFTZDwuBRU2gje26A0Dac'
 
     if not api_key:
@@ -66,30 +67,32 @@ def complete_api_request(prompt, pdf):
 def generate_json(pdf_path):
     images = convert_from_path(pdf_path)
     text = ''
-    total_json = "["
+    total_json = []
 
-    for i in range(len(images)):
-        print(f"Processing page {i}")
-        text = pytesseract.image_to_string(images[i])
-        print(f"Extracted text: {text[:500]}")  # Print first 500 characters of extracted text for debugging
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for i in range(len(images)):
+            print(f"Processing page {i}")
+            text = pytesseract.image_to_string(images[i])
+            print(f"Extracted text: {text[:500]}")  # Print first 500 characters of extracted text for debugging
+            
+            # Remove special characters and convert Greek letters to English
+            clean_text = re.sub(r'[^a-zA-Z0-9\s.,;:!?\'"-]', '', text)
+            clean_text = clean_text.replace('α', 'alpha').replace('β', 'beta').replace('γ', 'gamma').replace('δ', 'delta')  # Add more replacements as needed
+
+            futures.append(executor.submit(complete_api_request, entire_prompt, clean_text))
         
-        # Remove special characters and convert Greek letters to English
-        clean_text = re.sub(r'[^a-zA-Z0-9\s.,;:!?\'"-]', '', text)
-        clean_text = clean_text.replace('α', 'alpha').replace('β', 'beta').replace('γ', 'gamma').replace('δ', 'delta')  # Add more replacements as needed
+        for i, future in enumerate(as_completed(futures)):
+            content = future.result()
+            pattern = re.compile(r'\[(.*?)\]', re.DOTALL)
+            match = pattern.search(content)
 
-        pattern = re.compile(r'\[(.*?)\]', re.DOTALL)
+            if content:
+                json_str = match.group(0)
+                total_json.append(json_str)
 
-        content = complete_api_request(entire_prompt, clean_text)
-        match = pattern.search(content)
-
-        # print(f"API response: {content[:500]}")  # Print first 500 characters of API response for debugging
-        if content:
-            json_str = match.group(0)
-            total_json+=(json_str)
-
-    total_json += ']'
-
-    return total_json
+    total_json_str = "[" + ",".join(total_json) + "]"
+    return total_json_str
 
 entire_prompt = '''
 You are responsible for creating at max 2 informational presentation slides based on the provided text
@@ -161,7 +164,7 @@ For problem-solving slides, the steps should be a list of objects following this
 Ensure that all brackets, parentheses, and curly braces are properly opened and closed. The entire output should be presented as a comprehensive JSON structure, with each slide represented as an object containing a title, bullet points, and a transcript (either standard or problem-solving format). Please make sure that the steps key is only included within the JSON objects representing example problems. Do not restart generating the JSON randomly.
 '''
 
-pdf_path = 'Statistics.pdf'
+# pdf_path = 'Statistics.pdf'
 
-with open ('output2.txt', 'w', encoding='utf-8') as file:
-    file.write(generate_json(pdf_path))
+# with open('output2.txt', 'w', encoding='utf-8') as file:
+#     file.write(generate_json(pdf_path))

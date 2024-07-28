@@ -50,10 +50,10 @@ def add_image_to_image(image, image_to_add_path, text_end_y):
 # image_2 = create_image(X_DIMENSION, Y_DIMENSION)
 
 
-text = "Write 'E(Y) = 1/p' on the board. Jon is cool!"
-text_2 = "E(Y) = 1/0.02"
-text_end_y = add_text_to_image(image, text, X_DIMENSION, y_start=50)
-text_end_y2 = add_text_to_image(image_2, text_2, X_DIMENSION, text_end_y + 10)
+# text = "Write 'E(Y) = 1/p' on the board. Jon is cool!"
+# text_2 = "E(Y) = 1/0.02"
+# text_end_y = add_text_to_image(image, text, X_DIMENSION, y_start=50)
+# text_end_y2 = add_text_to_image(image_2, text_2, X_DIMENSION, text_end_y + 10)
 
 # # image_with_local_image = add_image_to_image(image, 'gray_image.png', text_end_y)
 # image.save('final_image.png')

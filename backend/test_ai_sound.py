@@ -1,7 +1,6 @@
 # import os
 # import azure.cognitiveservices.speech as speechsdk
 
-<<<<<<< HEAD
 # speech_config = speechsdk.SpeechConfig(subscription="6c34a2c3419e4846beb5b5b064df4af6", region='eastus')
 
 # speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3)
@@ -46,37 +45,21 @@ import subprocess
 from pydub.utils import which
 
 def get_audio(text):
-=======
-def synthesize_text_to_audio(text):
->>>>>>> 60dd594 (reads audio as byte array)
 
     subscription_key = "6c34a2c3419e4846beb5b5b064df4af6"
     service_region = "eastus"
     speech_config = speechsdk.SpeechConfig(subscription=subscription_key, region=service_region)
     speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3)
-<<<<<<< HEAD
     speech_config.speech_synthesis_voice_name = 'en-US-SteffanNeural'
 
 
     audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
-=======
-
-
-    stream = speechsdk.AudioDataStream(speechsdk.SpeechSynthesizer(speech_config=speech_config))
-
-
-    speech_config.speech_synthesis_voice_name = 'en-US-SteffanNeural'
-
-
-    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
->>>>>>> 60dd594 (reads audio as byte array)
 
     speech_synthesis_result = speech_synthesizer.speak_text_async(text).get()
 
     if speech_synthesis_result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
         print(f"Speech synthesized for text [{text}]")
-<<<<<<< HEAD
 
   
         stream = speechsdk.AudioDataStream(speech_synthesis_result)
@@ -96,12 +79,6 @@ def synthesize_text_to_audio(text):
         # custom_play(audio_segment)
         
         return bytes(audio_data) 
-=======
-        
-        
-        audio_data = stream.read_all() # byte array
-        return audio_data
->>>>>>> 60dd594 (reads audio as byte array)
 
     elif speech_synthesis_result.reason == speechsdk.ResultReason.Canceled:
         cancellation_details = speech_synthesis_result.cancellation_details
