@@ -66,7 +66,6 @@ def generate_slides():
                         last_y = generate_image.add_text_to_image(image, step['WRITE'], generate_image.X_DIMENSION, last_y + 5)
                         coords = image_processing.get_coordinates_from_processed_img(image, 0, 0)
                         
-                        # Look ahead for the "DURING WRITING" step
                         if idx + 1 < len(obj['steps']) and 'DURING WRITING' in obj['steps'][idx + 1]:
                             during_writing_audio = test_ai_sound.get_audio(obj['steps'][idx + 1]['DURING WRITING'])
                             encoded_audio = base64.b64encode(during_writing_audio).decode('utf-8')
@@ -75,7 +74,7 @@ def generate_slides():
                             steps.append(coords)
 
                     elif 'DURING WRITING' in step:
-                        continue  # Skip as it is handled with 'WRITE'
+                        continue  
 
                     elif 'PAUSE' in step:
                         audio_bytes = test_ai_sound.get_audio(step['PAUSE'])
