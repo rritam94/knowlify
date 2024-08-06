@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const PdfUpload = ({ className, setSlides, setActions }) => {
+const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) => {
   const [file, setFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
 
@@ -25,6 +25,7 @@ const PdfUpload = ({ className, setSlides, setActions }) => {
           setUploadStatus('File uploaded successfully');
           setSlides(jsonResponse.slides);
           setActions(jsonResponse.actions)
+          setCurrentSlideJson(jsonResponse.json);
         } 
         
         else {
@@ -47,7 +48,6 @@ const PdfUpload = ({ className, setSlides, setActions }) => {
     <div className={className}>
       <input className = "button" type="file" accept="application/pdf" onChange={handleFileChange} />
       <button className = "button" onClick={handleUpload}>Upload PDF</button>
-      {uploadStatus && <p>{uploadStatus}</p>}
     </div>
   );
 };

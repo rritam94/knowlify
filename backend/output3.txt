@@ -1,0 +1,213 @@
+[{
+  "title": "Introduction to the Team",
+  "bullet_points": ["Knowlity", "Full-Stack Dev Computer Vision Al Quant Research", "Anarchy Labs YC W23 Researcher", "APRILab", "World Quant", "Data Science Intern", "UF"],
+  "steps": [
+    {"START": "Let's start by introducing ourselves. We are a team of researchers and developers with a diverse set of skills and experiences."},
+    {"WRITE": "Knowlity"},
+    {"DURING WRITING": "Knowlity is the name of our team or organization. We'll be learning more about what we do and what we're working on."},
+    {"PAUSE": "As we go through this presentation, you'll notice that we have a mix of technical and research backgrounds."},
+    {"WRITE": "Full-Stack Dev Computer Vision Al Quant Research"},
+    {"DURING WRITING": "This means we have expertise in developing software applications, computer vision, artificial intelligence, and quantitative research. We'll be exploring what each of these areas means and how they relate to our work."},
+    {"WRITE": "Anarchy Labs YC W23 Researcher"},
+    {"DURING WRITING": "Anarchy Labs is a research organization, and YC W23 refers to the Y Combinator Winter 2023 batch. This indicates that we're part of a community of researchers and startups working on innovative projects."},
+    {"WRITE": "APRILab"},
+    {"DURING WRITING": "APRILab is another research organization we're affiliated with. We'll learn more about the types of projects and research we're involved in."},
+    {"WRITE": "World Quant"},
+    {"DURING WRITING": "World Quant is a company that specializes in quantitative research and trading. We'll explore how our work relates to this field."},
+    {"WRITE": "Data Science Intern"},
+    {"DURING WRITING": "We also have experience working as data science interns, which involves applying data science techniques to real-world problems."},
+    {"WRITE": "UF"},
+    {"DURING WRITING": "Finally, UF refers to the University of Florida, which is where some of our team members have studied or worked."},
+    {"STOP": "That's a brief introduction to our team. We'll be diving deeper into our work and research throughout this presentation."}
+  ]
+}, {
+  "title": "Introduction to Knowlify",
+  "bullet_points": ["Struggled in upper level statistics class", "Textbooks are not engaging", "Inspired by Khan Academy", "Created a platform to convert text into live lectures"],
+  "steps": [
+    {"START": "Have you ever struggled to understand complex topics in your classes?"},
+    {"WRITE": "Upper level statistics class"},
+    {"DURING WRITING": "For many students, classes like upper level statistics can be overwhelming. The material is dense, and it's easy to get lost."},
+    {"PAUSE": "But what if you had a way to make learning easier?"},
+    {"WRITE": "Textbooks are not engaging"},
+    {"DURING WRITING": "Textbooks can be dry and boring, making it hard to stay focused. You might find yourself reading the same paragraph over and over without really understanding it."},
+    {"PAUSE": "So, what's the solution?"},
+    {"WRITE": "Inspired by Khan Academy"},
+    {"DURING WRITING": "Khan Academy has shown us that learning can be fun and engaging. Their video lectures are informative, interactive, and easy to follow."},
+    {"PAUSE": "What if you could have a similar experience with your own textbooks?"},
+    {"STOP": "That's where Knowlify comes in."}
+  ]
+}, {
+  "title": "What is Knowlify?",
+  "bullet_points": ["Upload textbook chapters and get a live lecture within a minute", "Creates Khan Academy-style drawings and explanations", "Simplifies complex topics for easy understanding", "Supports live QA during lectures", "Provides detailed explanations for example problems"],
+  "steps": [
+    {"START": "So, what is Knowlify?"},
+    {"WRITE": "Upload textbook chapters and get a live lecture within a minute"},
+    {"DURING WRITING": "With Knowlify, you can upload your textbook chapters and get a live lecture in just a minute. It's like having your own personal tutor!"},
+    {"PAUSE": "But how does it work?"},
+    {"WRITE": "Creates Khan Academy-style drawings and explanations"},
+    {"DURING WRITING": "Knowlify uses advanced technology to create interactive drawings and explanations, just like Khan Academy. This makes complex topics easy to understand."},
+    {"PAUSE": "And what about the lectures themselves?"},
+    {"WRITE": "Simplifies complex topics for easy understanding"},
+    {"DURING WRITING": "Knowlify's lectures are designed to simplify complex topics, breaking them down into bite-sized chunks. This makes it easy to follow along and understand the material."},
+    {"PAUSE": "But what if you have questions during the lecture?"},
+    {"WRITE": "Supports live QA during lectures"},
+    {"DURING WRITING": "Knowlify allows you to ask questions during the lecture, just like in a real classroom. This ensures you get the help you need, when you need it."},
+    {"PAUSE": "And finally, what about example problems?"},
+    {"WRITE": "Provides detailed explanations for example problems"},
+    {"DURING WRITING": "Knowlify provides detailed explanations for example problems, walking you through each step. This helps you understand the material and apply it to real-world situations."},
+    {"STOP": "That's Knowlify in a nutshell!"}
+  ]
+}, {
+  "title": "Intended Audiences and Future Applications",
+  "bullet_points": ["Students", "Researchers", "Corporate training and onboarding", "Client education", "Internal knowledge", "Skill development programs"],
+  "steps": [
+    {"START": "Let's explore who can benefit from our content and how it can be applied in the future."},
+    {"WRITE": "Students"},
+    {"DURING WRITING": "Our content is designed to help students simplify complex subjects and find engaging ways to learn. We aim to provide alternative explanations that make it easier for them to understand and retain the information."},
+    {"PAUSE": "Think about how many times you've struggled with a concept in school. Our goal is to make learning more accessible and enjoyable for students."},
+    {"WRITE": "Researchers"},
+    {"DURING WRITING": "Researchers can also benefit from our content by using it to solve textbook problems and explore new ideas. We provide a fresh perspective on complex subjects, which can be helpful for those looking to advance their knowledge in a particular field."},
+    {"PAUSE": "Imagine having a resource that helps you break down complex concepts and find new ways to approach problems. That's what we aim to provide for researchers."},
+    {"WRITE": "Corporate training and onboarding"},
+    {"DURING WRITING": "In the future, our content can be used for corporate training and onboarding programs. We can help companies educate their employees on new skills and concepts, making it easier for them to adapt to new roles and responsibilities."},
+    {"PAUSE": "Think about how much easier it would be for employees to learn new skills if they had engaging and easy-to-understand content. That's what we can provide for businesses."},
+    {"WRITE": "Client education and internal knowledge"},
+    {"DURING WRITING": "Our content can also be used to educate clients on new concepts and ideas. Additionally, it can be used to share internal knowledge within a company, making it easier for employees to access and understand important information."},
+    {"PAUSE": "Imagine having a resource that helps you communicate complex ideas to clients and employees in a way that's easy for them to understand. That's what we can provide."},
+    {"WRITE": "Skill development programs"},
+    {"DURING WRITING": "Finally, our content can be used to create skill development programs that help individuals improve their skills and knowledge in a particular area. We can provide a structured approach to learning that makes it easier for people to achieve their goals."},
+    {"STOP": "In summary, our content has a wide range of applications, from helping students and researchers to supporting corporate training and client education. We're excited to see how our content can be used to make a positive impact in the future."}
+  ]
+}, {
+    "title": "Initial Thoughts on the Product",
+    "bullet_points": ["First impressions of the product", "Key features and benefits", "Potential target audience"],
+    "steps": [
+      {"START": "Let's start by sharing our initial thoughts on the product. What are your first impressions?"},
+      {"WRITE": "Key features and benefits"},
+      {"DURING WRITING": "When considering a product, we look at its unique features and the benefits it provides to its users. What sets this product apart from others in the market?"},
+      {"PAUSE": "Take a moment to think about the potential target audience for this product. Who would be most interested in using it?"},
+      {"WRITE": "Potential target audience"},
+      {"DURING WRITING": "Understanding the target audience is crucial in determining the product's viability. Are there any specific demographics or industries that would benefit from this product?"},
+      {"STOP": "By considering these factors, we can begin to form a comprehensive understanding of the product's potential."}
+    ]
+  }, {
+    "title": "Challenges with the Idea",
+    "bullet_points": ["Potential obstacles and limitations", "Market competition", "Technical feasibility"],
+    "steps": [
+      {"START": "Now, let's discuss potential challenges with the idea. What obstacles or limitations do you foresee?"},
+      {"WRITE": "Potential obstacles and limitations"},
+      {"DURING WRITING": "Every product has its challenges. What are some potential roadblocks that could hinder the product's success?"},
+      {"PAUSE": "Consider the market competition. How does this product differentiate itself from existing solutions?"},
+      {"WRITE": "Market competition"},
+      {"DURING WRITING": "Understanding the competitive landscape is essential in determining the product's unique value proposition. How does this product stand out from the crowd?"},
+      {"WRITE": "Technical feasibility"},
+      {"DURING WRITING": "Is the product technically feasible? Are there any potential technical hurdles that need to be addressed?"},
+      {"STOP": "By acknowledging these challenges, we can begin to develop strategies to overcome them."}
+    ]
+  }, {
+    "title": "Progressing Moving Forward",
+    "bullet_points": ["Next steps for development", "Resource allocation", "Timeline"],
+    "steps": [
+      {"START": "Now that we've discussed the product and its challenges, let's talk about how to progress moving forward. What are the next steps for development?"},
+      {"WRITE": "Next steps for development"},
+      {"DURING WRITING": "What specific actions need to be taken to move the product forward? Are there any key milestones that need to be achieved?"},
+      {"PAUSE": "Consider resource allocation. What resources are needed to support the product's development?"},
+      {"WRITE": "Resource allocation"},
+      {"DURING WRITING": "What personnel, funding, and equipment are required to bring the product to life?"},
+      {"WRITE": "Timeline"},
+      {"DURING WRITING": "What is the projected timeline for the product's development and launch? Are there any critical deadlines that need to be met?"},
+      {"STOP": "By outlining these next steps, we can create a clear roadmap for the product's success."}
+    ]
+  }, {
+    "title": "Key Factors for Investment",
+    "bullet_points": ["Market potential", "Competitive advantage", "Team and management"],
+    "steps": [
+      {"START": "When deciding to invest in a startup, what are the key factors we consider?"},
+      {"WRITE": "Market potential"},
+      {"DURING WRITING": "We look for products with significant market potential. Is there a large and growing market for this product?"},
+      {"PAUSE": "Consider the competitive advantage. What sets this product apart from others in the market?"},
+      {"WRITE": "Competitive advantage"},
+      {"DURING WRITING": "A unique value proposition is essential in differentiating the product from competitors. What makes this product unique?"},
+      {"WRITE": "Team and management"},
+      {"DURING WRITING": "The team and management behind the product are crucial in determining its success. What is the team's experience and track record?"},
+      {"STOP": "By considering these key factors, we can make informed investment decisions."}
+    ]
+  }, {
+    "title": "Business Models",
+    "bullet_points": ["Subscription Plans", "Content Licensing", "Partnerships and Collaborations"],
+    "steps": [
+      {"START": "Let's start by exploring the different business models that can be used to deliver educational content."},
+      {"WRITE": "Subscription Plans"},
+      {"DURING WRITING": "Subscription plans are a way for users to access exclusive content on a regular basis. This can include institutional and individual subscriptions."},
+      {"WRITE": "Content Licensing"},
+      {"DURING WRITING": "Content licensing is a way for educational platforms to use our AI-generated content. We can license our content to other companies, allowing them to use it in their own products."},
+      {"PAUSE": "Let's think about why this is important. By licensing our content, we can reach a wider audience and generate more revenue."},
+      {"WRITE": "Partnerships and Collaborations"},
+      {"DURING WRITING": "We can also partner with other companies to create co-branded content. This means we work together to create content that is branded with both our names."},
+      {"STOP": "By having multiple business models, we can diversify our revenue streams and reach a wider audience."}
+    ]
+  }, {
+    "title": "Subscription Plans",
+    "bullet_points": ["Institutional subscriptions", "Individual subscriptions"],
+    "steps": [
+      {"START": "Now let's dive deeper into our subscription plans."},
+      {"WRITE": "Institutional subscriptions"},
+      {"DURING WRITING": "These are subscriptions that are purchased by schools or institutions. This can provide access to our content for all students and teachers."},
+      {"WRITE": "Individual subscriptions"},
+      {"DURING WRITING": "These are subscriptions that are purchased by individual users. This can provide access to our content for personal use."},
+      {"PAUSE": "Let's think about why this is important. By offering both institutional and individual subscriptions, we can cater to different types of users."},
+      {"STOP": "This allows us to reach a wider audience and provide more flexibility for our users."}
+    ]
+  }, {
+    "title": "Content Licensing",
+    "bullet_points": ["License Knowlify's AI-generated content", "Directly work with textbook publishers"],
+    "steps": [
+      {"START": "Now let's talk about content licensing."},
+      {"WRITE": "License Knowlify's AI-generated content"},
+      {"DURING WRITING": "We can license our AI-generated content to other educational platforms. This can include video lectures, interactive simulations, and more."},
+      {"WRITE": "Directly work with textbook publishers"},
+      {"DURING WRITING": "We can also work directly with textbook publishers to integrate our video lectures directly into online textbooks."},
+      {"PAUSE": "Let's think about why this is important. By licensing our content, we can generate revenue and reach a wider audience."},
+      {"STOP": "This allows us to expand our reach and provide more value to our users."}
+    ]
+  }, {
+    "title": "Partnerships and Collaborations",
+    "bullet_points": ["Create co-branded content"],
+    "steps": [
+      {"START": "Now let's talk about partnerships and collaborations."},
+      {"WRITE": "Create co-branded content"},
+      {"DURING WRITING": "We can partner with other companies to create co-branded content. This means we work together to create content that is branded with both our names."},
+      {"PAUSE": "Let's think about why this is important. By partnering with other companies, we can create new and innovative content that reaches a wider audience."},
+      {"STOP": "This allows us to build new relationships and provide more value to our users."}
+    ]
+  }, {
+    "title": "Competitive Landscape",
+    "bullet_points": ["Textbooks", "YouTube", "Khan Academy Videos", "GPT"],
+    "steps": [
+      {"START": "Now let's look at the competitive landscape."},
+      {"WRITE": "Textbooks"},
+      {"DURING WRITING": "Textbooks are a traditional way of delivering educational content. However, they can be expensive and outdated."},
+      {"WRITE": "YouTube"},
+      {"DURING WRITING": "YouTube is a popular platform for educational videos. However, the quality and accuracy of the content can vary."},
+      {"WRITE": "Khan Academy Videos"},
+      {"DURING WRITING": "Khan Academy is a well-known online educational platform that provides high-quality video lectures. However, their content may not be as comprehensive as ours."},
+      {"WRITE": "GPT"},
+      {"DURING WRITING": "GPT is a type of AI-powered educational content. However, it may not be as interactive or engaging as our content."},
+      {"PAUSE": "Let's think about why this is important. By understanding the competitive landscape, we can identify areas for differentiation and improvement."},
+      {"STOP": "This allows us to create a unique value proposition and stand out in the market."}
+    ]
+  }, {
+    "title": "Our Advantage",
+    "bullet_points": ["Carefully guided custom explanations", "Generative drawings for any topic", "Ease of use"],
+    "steps": [
+      {"START": "Now let's talk about our advantage."},
+      {"WRITE": "Carefully guided custom explanations"},
+      {"DURING WRITING": "Our AI-generated content provides carefully guided custom explanations that cater to individual learning needs."},
+      {"WRITE": "Generative drawings for any topic"},
+      {"DURING WRITING": "Our content includes generative drawings that can illustrate any topic, making it more engaging and interactive."},
+      {"WRITE": "Ease of use"},
+      {"DURING WRITING": "Our platform is designed to be easy to use, making it accessible to users of all ages and skill levels."},
+      {"PAUSE": "Let's think about why this is important. By highlighting our advantages, we can differentiate ourselves from competitors and provide more value to our users."},
+      {"STOP": "This allows us to create a unique selling proposition and attract more users to our platform."}
+    ]
+  }]

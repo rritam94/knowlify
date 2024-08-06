@@ -46,7 +46,7 @@ from pydub.utils import which
 
 def get_audio(text):
 
-    subscription_key = "6c34a2c3419e4846beb5b5b064df4af6"
+    subscription_key = "c30c3ccd4b8747db997c4c6c08095f5c"
     service_region = "eastus"
     speech_config = speechsdk.SpeechConfig(subscription=subscription_key, region=service_region)
     speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3)

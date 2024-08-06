@@ -1,138 +1,145 @@
-import urllib.request
-import json
-import os
-import ssl
-from pdf2image import convert_from_path
+
+from pdf2image import convert_from_path, convert_from_bytes
 import pytesseract
 import time
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from groq import Groq
+import json
+import io
 
-def allowSelfSignedHttps(allowed):
-    if allowed and not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None):
-        ssl._create_default_https_context = ssl._create_unverified_context
+client = Groq(api_key='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')
 
-allowSelfSignedHttps(True)
-
-def complete_api_request(prompt, pdf):
-    data = {
-        "messages": [
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": pdf}
+def complete_api_request(prompt, pdf, max_tokens = 3000):
+    completion = client.chat.completions.create(
+        model="llama-3.1-70b-versatile",
+        messages=[
+            {
+                "role": "system",
+                "content": prompt
+            },
+            {
+                "role": "user",
+                "content": pdf,
+            }
         ],
-        "max_tokens": 5500,
-        "temperature": 0.8,
-        "top_p": 0.1,
-        "best_of": 1,
-        "presence_penalty": 0,
-        "use_beam_search": "false",
-        "ignore_eos": "false",
-        "skip_special_tokens": "false",
-        "logprobs": "false"
-    }
+        temperature=0.4,
+        max_tokens=max_tokens,
+        top_p=1,
+        stream=True,
+        stop=None,
+    )
 
-    body = str.encode(json.dumps(data))
-    url = 'https://knowlify-serverless.eastus2.inference.ai.azure.com/v1/chat/completions'
-    api_key = 'r969yiozSSSCFTZDwuBRU2gje26A0Dac'
+    response_stream = io.StringIO()
+    for chunk in completion:
+        if chunk.choices[0].delta.content is not None:
+            content = chunk.choices[0].delta.content
+            response_stream.write(content)
 
-    if not api_key:
-        raise Exception("A key should be provided to invoke the endpoint")
+    response = response_stream.getvalue()
+    response_stream.close()
 
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + api_key}
-    req = urllib.request.Request(url, body, headers)
+    return response
 
-    try:
-        response = urllib.request.urlopen(req)
-        result = response.read()
-        if not result:
-            raise Exception("Empty response received from the API")
-        
-        json_string = result.decode('utf-8')
-        if not json_string.strip():
-            raise Exception("Empty JSON string received from the API")
-        
-        data = json.loads(json_string)
-        message_content = data['choices'][0]['message']['content']
-        return message_content
-
-    except urllib.error.HTTPError as error:
-        print("The request failed with status code: " + str(error.code))
-        print(error.info())
-        print(error.read().decode("utf8", 'ignore'))
-        return None
-    except json.JSONDecodeError as e:
-        print("Error decoding JSON response: " + str(e))
-        print("Raw response: " + result.decode('utf-8'))
-        return None
-
-def generate_json(pdf_path):
-    images = convert_from_path(pdf_path)
-    text = ''
-    total_json = []
+def generate_json(pdf):
+    images = convert_from_bytes(pdf)
+    result = []
 
     with ThreadPoolExecutor() as executor:
         futures = []
         for i in range(0, len(images), 2):
             if i == len(images) - 1:
                 text = pytesseract.image_to_string(images[i])
-                clean_text = re.sub(r'[^a-zA-Z0-9\s.,;:!?\'"-]', '', text)
-                clean_text = clean_text.replace('α', 'alpha').replace('β', 'beta').replace('γ', 'gamma').replace('δ', 'delta')
-
             else:
                 text = pytesseract.image_to_string(images[i])
                 text += pytesseract.image_to_string(images[i + 1])
-                clean_text = re.sub(r'[^a-zA-Z0-9\s.,;:!?\'"-]', '', text)
-                clean_text = clean_text.replace('α', 'alpha').replace('β', 'beta').replace('γ', 'gamma').replace('δ', 'delta')
+
+            clean_text = re.sub(r'[^a-zA-Z0-9\s.,;:!?\'"-]', '', text)
+            clean_text = clean_text.replace('α', 'alpha').replace('β', 'beta').replace('γ', 'gamma').replace('δ', 'delta')
 
             futures.append(executor.submit(complete_api_request, entire_prompt, clean_text))
         
         for i, future in enumerate(as_completed(futures)):
             content = future.result()
             content_clipped = ''
-            start = False
+            stack = []
 
-            if content:
-                for char in content:
-                    if char == '[' and not start:
-                        start = True
-
-                    elif start:
+            for char in content:
+                if char == '{':
+                    stack.append(char)
+                    content_clipped += char
+                elif char == '}':
+                    stack.pop()
+                    content_clipped += char
+                    if not stack:
+                        result.append(content_clipped)
+                        content_clipped = ''
+                else:
+                    if stack:
                         content_clipped += char
 
-                total_json.append(content_clipped[0:-1])
+        json_list_str = "[" + ", ".join(result) + "]"
 
-    total_json_str = '[' + ",".join(total_json) + ']'
-    return total_json_str
+    return json_list_str
 
+def answer_question(request):
+    total_json = []
+
+    content = complete_api_request(question_prompt, request, 1024)
+    print(content)
+    content_clipped = ''
+    start = False
+    stack = []
+    result = []
+
+    if content: 
+        for char in content:
+            if char == '{':
+                stack.append(char)
+                content_clipped += char
+            elif char == '}':
+                stack.pop()
+                content_clipped += char
+                if not stack:
+                    result.append(content_clipped)
+                    content_clipped = ''
+            else:
+                if stack:
+                    content_clipped += char
+
+        json_list_str = "[" + ", ".join(result) + "]"
+
+    return json_list_str
 
 entire_prompt = '''
-You are responsible for creating at max 2 informational presentation slides based on the provided text
+You are a teacher who is responsible for creating at max 1 informational presentation slide based on the provided text
 
 Generate:
 1. Informative slide titles that accurately reflect the main idea of each section.
 2. Bullet points summarizing the key points for each slide.
-3. If we have a general informational slide, a detailed transcript that explains the content in-depth should be generated. If it is an example problem slide, then a json object called "steps" should be generated.
+3. A "steps" object for each slide that explains the content in-depth and provides instructions for presenting it.
+4. Split up slides into general information slides and example problem slides. Example problems should be completely separate slides and not be involved at all within the general information slides.
 
-As mentioned, slides will be split up into general informational content and example problems.
+**************************************************************
+YOUR OUTPUT MUST BE A JSON FILE CONTAINING THESE OBJECTS. 
 
-For general informational content:
-- Ensure all symbols and special characters are correctly represented.
-- Thoroughly cover all the material from the text within the slides.
-- The transcript should expand on the bullet points, offering detailed explanations, examples, and insights to enhance understanding.
-- Make sure the transcript continues smoothly from previous slides without repeating introductory phrases.
-- Do not reference non-existent images or tables
+HERE IS THE FORMAT IT SHOULD FOLLOW:
+YOUR OUTPUT MUST BE A JSON FILE IN THE FOLLOWING FORMAT. DO NOT GENERATE ANY TEXT OUTSIDE OF THE JSON FORMATTING! EACH JSON OBJECT IS ITS OWN SLIDE:
+{
+  "title": "TITLE_OF_SLIDE",
+  "bullet_points": ["POINT_1", "POINT_2", "POINT_3", ...],
+  "steps": [
+    {"START": "Start your explanation here."},
+    {"WRITE": "Write a single point or key note here, such as a variable definition or a specific step in a problem-solving process."},
+    {"DURING WRITING": "Provide a detailed explanation related to the written point, making sure to break down complex concepts into simple terms."},
+    {"PAUSE": "Pause to explain the thought process or where the methods used come from, providing context for the next steps."},
+    {"WRITE": "Another single point or key note."},
+    {"DURING WRITING": "Further detailed explanation related to the newly written point."},
+    {"STOP": "Conclude the slide, summarizing the key takeaways."}
+  ]
+}
 
-For example problems:
-- Instead of a transcript key, you should use "steps"
-- The steps key should be a list of steps required to solve the problem (Use the following indicators where appropriate: START, WRITE, DRAW, DURING WRITING, PAUSE, STOP). It should not just be dialogue.
-- Describe the problem-solving process in a step-by-step manner to the point where a child could understand how to solve it.
-- Provide detailed explanations for each step, breaking down new concepts or calculations thoroughly.
-- Be specific and detailed in calculations.
-- Describe what should be drawn or written on a whiteboard, keeping it concise.
-- Use a clear, engaging, and conversational style suitable for educational content.
-- Do not reference non-existent images or tables
-- Reflect the entire problem statement within the bullet points
-- Example of the desired level of detail:
+EXAMPLE OF WHAT YOUR OUTPUT SHOULD BE LIKE
 {
     "title": "Example 6.29: Finding the Center of Mass of Objects along a Line",
     "bullet_points": ["Four point masses are placed on a number line", "m1 = 30 kg, placed at x1 = −2 m", "m2 = 5 kg, placed at x2 = 3 m", "m3 = 10 kg, placed at x3 = 6 m", "m4 = 15 kg, placed at x4 = −3 m", "Find the moment of the system with respect to the origin and the center of mass of the system"],
@@ -147,30 +154,125 @@ For example problems:
       {"WRITE": "m4 = 15 kg, x4 = −3 m"},
       {"DURING WRITING": "Finally, a 15 kilogram mass is 3 meters to the left of the origin."},
       {"PAUSE": "Now, let's think about what we need to do next. We want to find the moment of the system with respect to the origin. Remember, the moment is like the 'turning force' caused by these masses about the origin. It's calculated by multiplying each mass by its distance from the origin."},
-      {"WRITE": "M = ∑(m_i x_i) = −60 + 15 + 60 − 45 = −30"},
+      {"WRITE": "M = summation of (m_i x_i) = −60 + 15 + 60 − 45 = −30"},
       {"DURING WRITING": "Let's break it down: for each mass, we multiply it by its position and then add all these values together. We get a total moment of -30."},
       {"PAUSE": "A negative moment means that if we imagine a seesaw, the left side is heavier. Now, let's calculate the total mass of the system."},
-      {"WRITE": "m = ∑ m_i = 30 + 5 + 10 + 15 = 60 kg"},
+      {"WRITE": "m = summation of m_i = 30 + 5 + 10 + 15 = 60 kg"},
       {"DURING WRITING": "This is simply adding up all the individual masses. So, the total mass is 60 kilograms."},
       {"PAUSE": "With both the moment and the total mass known, we can now find the center of mass. This tells us where to place a fulcrum to balance all the masses."},
       {"WRITE": "x̄ = M / m = −30 / 60 = −1/2"},
       {"DURING WRITING": "We divide the moment by the total mass. The result, -1/2, means the center of mass is half a meter to the left of the origin."},
       {"STOP": "So, if you placed a fulcrum at this point, the entire system would be perfectly balanced!"}
     ]
-  }
+}
 
-YOUR OUTPUT MUST BE A JSON FILE IN THE FOLLOWING FORMAT. EACH JSON OBJECT IS ITS OWN SLIDE:
-[
-  {
-    "title": "TITLE_OF_SLIDE",
-    "bullet_points": ["POINT_1", "POINT_2", "POINT_3", ...],
-    "transcript" or "steps": "TRANSCRIPT_FOR_SLIDE" or "STEPS_FOR_SLIDE"
-  }
-]
+You can use as many WRITE, DURING WRITING and PAUSE OBJECTS as you'd like. THE WRITING DICTIONARY AND THE DURING WRITING DICTIONARY SHOULD BE SEPARATE INDICES IN THE STEPS LIST.
 
-Ensure that all brackets, parentheses, and curly braces are properly opened and closed. The entire output should be presented as a comprehensive JSON structure, with each slide represented as an object containing a title, bullet points, and a transcript (either standard or problem-solving format). Please make sure that the steps key is only included within the JSON objects representing example problems. Do not restart generating the JSON randomly.
+LASTLY, DO NOT GENERATE ANY TEXT OUTSIDE OF THE JSON. YOU WILL BE SPANKED IF YOU DO.
+**************************************************************
+
+For all slides:
+- Thoroughly cover all the material from the text within the slides.
+- The steps should expand on the bullet points, offering detailed explanations, examples, and intellectual insights to enhance understanding.
+- Make sure the steps continue smoothly from previous slides without repeating introductory phrases.
+- Do not reference images or tables, even if it is mentioned in the textual content.
+- Describe the presentation process in a step-by-step manner that is easy to follow.
+- Provide detailed explanations for each step, breaking down new concepts or calculations thoroughly. A 2 year old kid should be able to learn the material through your output.
+- Be specific and detailed in calculations.
+- Use a clear, engaging, and conversational style suitable for educational content.
+
+Follow these rules:
+- Present the output as a comprehensive JSON structure, with each slide represented by an object containing a title, bullet points, and a steps object
+- The steps should contain detailed and thorough dialogue, suitable for a young child to understand
+- Use pauses to explain thought processes and teaching methods
+- Do not write long text out for the "WRITE" step. Keep it to a maxmimum of 5 english words. Instead it should be math, short phrases, etc.
+- Avoid referencing specific content like definitions, theorems, or tables by number. 
+- Ensure all key concepts, definitions, and properties are explicitly defined and thoroughly explained using text and dialogue
+- Always complete each example problem and explanation on the slides, using real-world examples where applicable
 '''
 
+refinement_prompt = '''YOUR OUTPUT MUST BE A JSON FILE IN THE FOLLOWING FORMAT. DO NOT GENERATE ANY TEXT OUTSIDE OF THE JSON FORMATTING! EACH JSON OBJECT IS ITS OWN SLIDE:
+{
+  "title": "TITLE_OF_SLIDE",
+  "bullet_points": ["POINT_1", "POINT_2", "POINT_3", ...],
+  "steps": [
+    {"START": "Start your explanation here."},
+    {"WRITE": "Write a single point or key note here, such as a variable definition or a specific step in a problem-solving process."},
+    {"DURING WRITING": "Provide a detailed explanation related to the written point, making sure to break down complex concepts into simple terms."},
+    {"PAUSE": "Pause to explain the thought process or where the methods used come from, providing context for the next steps."},
+    {"WRITE": "Another single point or key note."},
+    {"DURING WRITING": "Further detailed explanation related to the newly written point."},
+    {"STOP": "Conclude the slide, summarizing the key takeaways."}
+  ]
+}
+You are responsible for refining and enhancing the "steps" object in a JSON file generated by another language model. Your goal is to transform the initial content into a more detailed, lengthy, engaging, and easy-to-understand explanations. Every step must be broken down clearly and comprehensively, with analogies and simple language used wherever possible.
+
+Instructions:
+1) Elaborate on Key Concepts: Deepen the explanation of each concept. Use analogies, simple comparisons, and examples that are easy to grasp. Avoid jargon and complex terms unless necessary; if used, thoroughly explain them.
+
+2) Enhance Detail in Calculations: Provide step-by-step breakdowns of calculations, explaining why each operation is performed. Use relatable scenarios or stories to make abstract ideas more tangible.
+
+3)Clarify Instructions for Presenting: Offer clear, step-by-step instructions for presenting the content. Include pauses to emphasize important points and to give the presenter time to explain concepts thoroughly.
+
+4) Smooth Transitions: Ensure smooth transitions between steps, maintaining continuity in the explanation. Avoid abrupt jumps in the narrative.
+
+5)Dialogue Style: Use a conversational and engaging style. Imagine you are guiding a child through the content, ensuring they understand each part before moving on.
+
+6)Use of the JSON Structure: Your output must adhere to the provided JSON format. Do not add new fields or modify the structure outside of the "steps" object. Focus solely on enhancing the "steps" content. Don't return any output that includes text OUTISDE of the JSON object! This includes text explaining what you changed.
+
+7) Do not write long text out for the "WRITE" step. Instead it should be math, short phrases, etc.
+'''
+
+question_prompt = '''
+You will be given a question by a student and the JSON of a presentation slide. Your goal is to generate a new JSON that follows the exact same format but answers the question. Make sure to include the question in the bullet points. The question may not be properly formatted/make sense but use context to understand.
+
+Input Example:
+Question: 
+Why is the joint probability function non-negative?
+
+JSON for a slide:
+{
+    "title": "Joint or Bivariate Probability Function",
+    "bullet_points": ["Assigns nonzero probabilities to a finite or countable number of pairs of values (y1, y2)", "Nonzero probabilities sum to 1", "Joint probability function is also called joint probability mass function"],
+    "steps": [
+      {"START": "Let's start by understanding what a joint or bivariate probability function is. It's a way to assign probabilities to pairs of values (y1, y2) for discrete random variables Y1 and Y2."},
+      {"WRITE": "P(y1, y2) = P(Y1 = y1, Y2 = y2)"},
+      {"DURING WRITING": "This is the joint probability function, which assigns a probability to each pair of values (y1, y2)."},
+      {"PAUSE": "Now, let's think about what this means. The joint probability function tells us the probability of both Y1 and Y2 taking on specific values."},
+      {"WRITE": "sum of the sum P(y1, y2) = 1"},
+      {"DURING WRITING": "One of the key properties of the joint probability function is that the sum of all the nonzero probabilities is equal to 1."},
+      {"PAUSE": "This makes sense, because we want the probabilities to add up to 1, just like in the single-variable case."},
+      {"WRITE": "P(y1, y2) ≥ 0 for all y1, y2"},
+      {"DURING WRITING": "Another important property is that the joint probability function is non-negative. This means that the probability of any pair of values (y1, y2) is always greater than or equal to 0."},
+      {"STOP": "So, the joint probability function is a fundamental concept in probability theory, and it's used to assign probabilities to pairs of values for discrete random variables."}
+    ]
+  }
+
+Output:
+{
+    "title": "Why is the Joint Probability Function Non-Negative?",
+    "bullet_points": [
+        "The joint probability function assigns probabilities to pairs of values (y1, y2)",
+        "Probabilities represent the likelihood of events occurring, which cannot be negative",
+        "Negative probabilities would imply an impossible or nonsensical scenario",
+        "Thus, the joint probability function is always greater than or equal to 0"
+    ],
+    "steps": [
+        {"START": "Let's explore why the joint probability function is non-negative. A joint probability function assigns probabilities to pairs of values (y1, y2) for discrete random variables Y1 and Y2."},
+        {"WRITE": "P(y1, y2) ≥ 0"},
+        {"DURING WRITING": "This tells us that the probability of any specific pair of values (y1, y2) is always zero or positive."},
+        {"PAUSE": "The reason for this is that probabilities measure the likelihood of an event occurring. A probability less than zero would imply that an event is less likely than the absence of the event, which is not possible."},
+        {"WRITE": "Probabilities are inherently non-negative"},
+        {"DURING WRITING": "In probability theory, probabilities must be non-negative because they represent a measure of chance or likelihood, and a negative value does not make sense in this context."},
+        {"PAUSE": "So, the requirement that probabilities, including those in the joint probability function, must be non-negative ensures that all probabilities are valid and meaningful."},
+        {"STOP": "Therefore, the joint probability function is non-negative by definition, as it reflects the natural constraint of probabilities being zero or positive."}
+    ]
+}
+
+*******************************************
+DO NOT PROVIDE ANY TEXT OUTSIDE OF THE JSON
+*******************************************
+'''
 # pdf_path = 'Statistics.pdf'
 
 # current_time = time.time()
@@ -179,3 +281,5 @@ Ensure that all brackets, parentheses, and curly braces are properly opened and 
 #     file.write(generate_json(pdf_path))
 
 # print(time.time() - current_time)
+
+#The entire output should be presented as a comprehensive JSON structure, with each slide represented as an object containing a title, bullet points, and a steps object. Make sure the dialogue within the steps object is extremely lengthy, dense and thorough, such that a 2 year old can learn from the generated content. It should also use pauses to explain your thought process and where you get the methods to solve/teach something from. The "WRITE" step in the steps object should only contain minor text (such as key notes from the dialogue), equations or summarized descriptions (aka Y1 = # of monkeys). Do not reference the textual content (e.g. Definition 3.2 or Table 5.1). Don't produce any text outside of the generated JSON. Lastly, always finish solving each example problem and explaining each slide. Please DO NOT REFERENCE Definitions, Theorems, Images, Tables, Diagrams, etc by their number in the textual content. Rather use text/dialogue to explain it or don't use it at all. Ensure all key concepts, definitions, and properties mentioned in the text are explicitly defined with the "WRITE" and "DURING WRITING" steps. When talking about these properties/rules/other concepts make sure to write what they actually are down instead of just saying Property 2.2. Be incredibly in-depth and use real world examples to help explain the content.
