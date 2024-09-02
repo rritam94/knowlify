@@ -32,28 +32,33 @@ function App() {
 
   return (
     <div className="App">
-      <div className="left-side">
-        <Slideshow
-          slides={slides}
-          currentSlide={currentSlide}
-          onSlideChange={onSlideChange}
-          setIdx={setIdx} 
-        />
-
-        <div className="upload-container">
-          <PdfUpload 
-            className="upload-button" 
-            setSlides={setSlides}
-            setActions={setActions}
-            setCurrentSlideJson={setCurrentSlideJson}
-            setLoading={setLoading}
+      <div className="top-bar">
+        <div className="top-bar-section">
+          <Slideshow
+            slides={slides}
+            currentSlide={currentSlide}
+            onSlideChange={onSlideChange}
+            setIdx={setIdx}
           />
-          {loading && <div className="loading-icon"></div>}
         </div>
-
-        <Question currentSlideJson={currentSlideJson} onUpdate={handleUpdate} />
+        <div className="top-bar-section">
+          <div className="upload-container">
+            <PdfUpload 
+              className="upload-button" 
+              setSlides={setSlides}
+              setActions={setActions}
+              setCurrentSlideJson={setCurrentSlideJson}
+              setLoading={setLoading}
+            />
+            {loading && <div className="loading-icon"></div>}
+          </div>
+        </div>
+        <div className="top-bar-section">
+          <Question currentSlideJson={currentSlideJson} onUpdate={handleUpdate} />
+        </div>
       </div>
-      <div className="right-side">
+
+      <div className="whiteboard-area">
         <Lecture actions={actions} currentSlide={currentSlide} idx={idx} setIdx={setIdx} />
       </div>
     </div>
