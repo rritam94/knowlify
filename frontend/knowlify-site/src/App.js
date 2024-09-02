@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import PdfUpload from './components/pdf';
-import AudioPlayer from './components/play';
 import Slideshow from './components/slideshow';
 import Lecture from './components/lecture';
 import Question from './components/questions';
-import './App.css'
+import './App.css';
 
 function App() {
   const [actions, setActions] = useState([]);
@@ -12,10 +11,10 @@ function App() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [idx, setIdx] = useState(0);
   const [currentSlideJson, setCurrentSlideJson] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const onSlideChange = (newSlide) => {
     setCurrentSlide(newSlide);
-    console.log('Slide changed to:', newSlide);
   };
 
   const handleUpdate = (newSlides, newActions) => {
@@ -41,22 +40,17 @@ function App() {
           setIdx={setIdx} 
         />
 
-        <PdfUpload 
-          className="upload-button" 
-          setSlides={(newSlides) => {
-            setSlides((prevSlides) => [
-              ...prevSlides.slice(0, currentSlide),
-              ...newSlides
-            ]);
-          }}
-          setActions={(newActions) => {
-            setActions((prevActions) => [
-              ...prevActions.slice(0, currentSlide),
-              ...newActions
-            ]);
-          }}
-          setCurrentSlideJson={setCurrentSlideJson}
-        />
+        <div className="upload-container">
+          <PdfUpload 
+            className="upload-button" 
+            setSlides={setSlides}
+            setActions={setActions}
+            setCurrentSlideJson={setCurrentSlideJson}
+            setLoading={setLoading}
+          />
+          {loading && <div className="loading-icon"></div>}
+        </div>
+
         <Question currentSlideJson={currentSlideJson} onUpdate={handleUpdate} />
       </div>
       <div className="right-side">

@@ -2,14 +2,17 @@ import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } f
 
 const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const animationRef = useRef(null);
   const indexRef = useRef(0);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const pixelsPerSecond = 150;
   const elapsedTimeRef = useRef(0);
   const lastTimestampRef = useRef(null);
-  const pixelsPerSecond = 150;
   const isPausedRef = useRef(false);
-  const allCoordinatesRef = useRef([]);
+  const lastPanPositionRef = useRef({ x: 0, y: 0 });
 
   const drawPixelsInBatches = (timestamp) => {
     if (!lastTimestampRef.current) {
@@ -25,7 +28,6 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-
     const targetIndex = Math.min(Math.floor(elapsedTimeRef.current / 1000 * pixelsPerSecond), coordinates.length);
 
     while (indexRef.current < targetIndex) {
@@ -38,9 +40,50 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
     if (indexRef.current < coordinates.length) {
       animationRef.current = requestAnimationFrame(drawPixelsInBatches);
     } else {
-      setIsDrawing(false);
       if (onEnded) onEnded();
     }
+  };
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const scaleFactor = 1.1;
+    if (e.deltaY < 0) {
+      setScale((prevScale) => Math.min(prevScale * scaleFactor, 50));
+    } else {
+      setScale((prevScale) => Math.max(prevScale / scaleFactor, 0.25));
+    }
+  };
+
+  const startPanning = (e) => {
+    if (e.button !== 2) return;
+    e.preventDefault();
+    setIsPanning(true);
+    lastPanPositionRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const pan = (e) => {
+    if (!isPanning) return;
+    const dx = e.clientX - lastPanPositionRef.current.x;
+    const dy = e.clientY - lastPanPositionRef.current.y;
+    setTranslate((prevTranslate) => ({
+      x: prevTranslate.x + dx,
+      y: prevTranslate.y + dy,
+    }));
+    lastPanPositionRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const stopPanning = (e) => {
+    if (e.button !== 2) return;
+    setIsPanning(false);
+  };
+
+  const saveCanvasAsImage = () => {
+    const canvas = canvasRef.current;
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = 'whiteboard.png';
+    link.click();
   };
 
   useImperativeHandle(ref, () => ({
@@ -49,7 +92,7 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
     },
     resume: () => {
       isPausedRef.current = false;
-      if (isDrawing && !animationRef.current) {
+      if (!animationRef.current) {
         animationRef.current = requestAnimationFrame(drawPixelsInBatches);
       }
     },
@@ -60,11 +103,6 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
       const newIndex = Math.min(Math.floor(time * pixelsPerSecond), coordinates.length);
       indexRef.current = newIndex;
       elapsedTimeRef.current = time * 1000;
-
-      allCoordinatesRef.current.forEach(([x, y]) => {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(x, y, 1, 1);
-      });
 
       for (let i = 0; i < newIndex; i++) {
         const [x, y] = coordinates[i];
@@ -77,27 +115,10 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
     getDuration: () => {
       return coordinates.length / pixelsPerSecond;
     },
-    // drawEndState: () => {
-    //   const canvas = canvasRef.current;
-    //   const ctx = canvas.getContext('2d');
-
-    //   allCoordinatesRef.current = [...allCoordinatesRef.current, ...coordinates];
-      
-    //   allCoordinatesRef.current.forEach(([x, y]) => {
-    //     ctx.fillStyle = 'white';
-    //     ctx.fillRect(x, y, 1, 1);
-    //   });
-
-    //   indexRef.current = coordinates.length;
-    //   elapsedTimeRef.current = coordinates.length / pixelsPerSecond * 1000;
-    //   setIsDrawing(false);
-    //   if (onEnded) onEnded();
-    // },
     clearAll: () => {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      allCoordinatesRef.current = [];
     },
 
     finishPixels: () => {
@@ -109,12 +130,10 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
         ctx.fillRect(x, y, 1, 1);
       });
 
-      // Stop the ongoing animation
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
 
-      setIsDrawing(false);
       indexRef.current = coordinates.length;
       elapsedTimeRef.current = coordinates.length / pixelsPerSecond * 1000;
     },
@@ -132,7 +151,6 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
         cancelAnimationFrame(animationRef.current);
       }
 
-      setIsDrawing(false);
       indexRef.current = coordinates.length;
       elapsedTimeRef.current = coordinates.length / pixelsPerSecond * 1000;
     },
@@ -140,12 +158,10 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
 
     indexRef.current = 0;
     elapsedTimeRef.current = 0;
     lastTimestampRef.current = null;
-    setIsDrawing(coordinates.length > 0);
 
     if (coordinates.length > 0) {
       animationRef.current = requestAnimationFrame(drawPixelsInBatches);
@@ -159,9 +175,27 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
   }, [coordinates]);
 
   return (
-    <>
-      <canvas ref={canvasRef} width={600} height={400} style={{ border: '1px solid white' }} />
-    </>
+    <div
+      ref={containerRef}
+      onWheel={handleWheel}
+      onMouseDown={startPanning}
+      onMouseMove={pan}
+      onMouseUp={stopPanning}
+      onMouseLeave={stopPanning}
+      onContextMenu={(e) => e.preventDefault()}
+      style={{ overflow: 'hidden', cursor: isPanning ? 'grabbing' : 'grab', border: '1px solid white', width: '600px', height: '400px' }}
+    >
+      <button onClick={saveCanvasAsImage}>Save as PNG</button>
+      <canvas
+        ref={canvasRef}
+        width={3400}
+        height={4400}
+        style={{
+          transform: `scale(${scale}) translate(${translate.x}px, ${translate.y}px)`,
+          transformOrigin: '0 0',
+        }}
+      />
+    </div>
   );
 });
 
