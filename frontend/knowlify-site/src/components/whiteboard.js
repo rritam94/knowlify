@@ -183,9 +183,9 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
       onMouseUp={stopPanning}
       onMouseLeave={stopPanning}
       onContextMenu={(e) => e.preventDefault()}
-      style={{ overflow: 'hidden', cursor: isPanning ? 'grabbing' : 'grab', border: '1px solid white', width: '600px', height: '400px' }}
+      style={{ overflow: 'hidden', cursor: isPanning ? 'grabbing' : 'grab', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
     >
-      <button onClick={saveCanvasAsImage}>Save as PNG</button>
+      <button onClick={saveCanvasAsImage} style={{ marginBottom: '10px', backgroundColor: '#3498db', color: 'white', borderRadius: '5px', padding: '5px 10px', border: 'none', cursor: 'pointer' }}>Save as PNG</button>
       <canvas
         ref={canvasRef}
         width={3400}
@@ -193,6 +193,10 @@ const Whiteboard = forwardRef(({ coordinates, onEnded }, ref) => {
         style={{
           transform: `scale(${scale}) translate(${translate.x}px, ${translate.y}px)`,
           transformOrigin: '0 0',
+          border: '2px solid #444',
+          borderRadius: '15px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+          backgroundColor: '#1c1c1c'
         }}
       />
     </div>
