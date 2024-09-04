@@ -193,5 +193,4 @@ def generate_python_code(prompt, context=''):
             print(f"Execution failed: {e}. Trying again...")
     
     image.show()
-    image.save("bruh.png")
     return image

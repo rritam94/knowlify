@@ -83,9 +83,7 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
         if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content is not None:
             content = chunk.choices[0].delta.content
             total_content += content
-            with open ('output2.txt','a', encoding='utf-8') as file:
-                file.write(content)
-
+    
             if '题' in content.lower():
                 found_title = True
 

@@ -35,7 +35,6 @@ function App() {
       ...newSlides,
       ...prevSlides.slice(currentSlide + 1)
     ]);
-
     setActions((prevActions) => [
       ...prevActions.slice(0, currentSlide + 1),
       ...newActions,

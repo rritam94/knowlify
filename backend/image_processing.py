@@ -25,15 +25,8 @@ def apply_threshold(image):
     return thresh
 
 def find_contours(thresh_image):
-    contours, hierarchy = cv2.findContours(thresh_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(thresh_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     return contours, hierarchy
-
-def filter_outer_contours(contours, hierarchy):
-    outer_contours = []
-    for i, contour in enumerate(contours):
-        if hierarchy[0][i][3] == -1:
-            outer_contours.append(contour)
-    return outer_contours
 
 def get_contour_start_y(contour):
     return contour[0][0][1]
