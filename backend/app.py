@@ -2,16 +2,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import slideshow_gen_json
 import google_slides_gen
-import test_ai_sound
+import sound
 import generate_image
 import image_processing
 import json
 import base64
-import numpy as np  # Import numpy
-from PIL import Image, ImageDraw, ImageFont
+import numpy as np  
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 CORS(app, origins='http://localhost:3000')
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
@@ -27,19 +28,77 @@ def convert_to_serializable(obj):
 
 @app.route('/generate_slides', methods=['POST'])
 def generate_slides():
-    print('in here')
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 
     pdf = request.files['pdf']
     print(pdf)
+
     if pdf.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
     try:
-        with open('output.txt', 'r', encoding='utf-8') as file:
-            json_response = file.read()
+        slideshow_gen_json.generate_json(pdf.read())
+        return jsonify({"successful": "success"}), 200
+    
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/title', methods=['POST'])
+def title():
+    data = request.json
+    socketio.emit('title_data', data)
+    return 'Title received', 200
 
+@app.route('/bullet_points', methods=['POST'])
+def bullet_points():
+    data = request.json
+    socketio.emit('bullet_points_data', data)
+    return 'Bullet Points Received', 200
+
+@app.route('/start', methods=['POST'])
+def start():
+    data = request.json
+    socketio.emit('start_data', data)
+    return 'Start Audio Received', 200
+
+@app.route('/write', methods=['POST'])
+def write():
+    data = request.json
+    socketio.emit('write_data', data)
+    return 'Write Coords Received', 200
+
+@app.route('/during_writing', methods=['POST'])
+def during_writing():
+    data = request.json
+    socketio.emit('during_writing_data', data)
+    return 'During Writing Audio Received', 200
+
+@app.route('/pause', methods=['POST'])
+def pause():
+    data = request.json
+    socketio.emit('pause_data', data)
+    return 'Pause Audio Received', 200
+
+@app.route('/stop', methods=['POST'])
+def stop():
+    data = request.json
+    socketio.emit('stop_data', data)
+    return 'Stop Audio Received', 200
+    
+@app.route('/answer_question', methods=['POST'])
+def answer_question():
+    data = request.get_json()
+    slide = data.get('slide', '')
+    transcript = data.get('transcript', '')
+
+    question = 'Question:\n' + transcript + '\n\n' + 'JSON For A Slide:\n' + slide
+    print(question)
+
+    json_response = slideshow_gen_json.answer_question(question)
+    
+    try:
         json_object = json.loads(json_response)
         slides = google_slides_gen.create_completed_slideshow(json_object)
         actions = []
@@ -48,7 +107,7 @@ def generate_slides():
             last_y = 10
 
             if 'transcript' in obj:
-                audio_bytes = test_ai_sound.get_audio(obj['transcript'])
+                audio_bytes = sound.get_audio(obj['transcript'])
                 encoded_audio = base64.b64encode(audio_bytes).decode('utf-8')
                 actions.append(encoded_audio)
 
@@ -57,7 +116,7 @@ def generate_slides():
                 
                 for idx, step in enumerate(obj['steps']):
                     if 'START' in step:
-                        audio_bytes = test_ai_sound.get_audio(step['START'])
+                        audio_bytes = sound.get_audio(step['START'])
                         encoded_audio = base64.b64encode(audio_bytes).decode('utf-8')
                         steps.append(encoded_audio)
 
@@ -65,25 +124,24 @@ def generate_slides():
                         image = generate_image.create_image()
                         last_y = generate_image.add_text_to_image(image, step['WRITE'], generate_image.X_DIMENSION, last_y + 5)
                         coords = image_processing.get_coordinates_from_processed_img(image, 0, 0)
-                        
-                        # Look ahead for the "DURING WRITING" step
+                        print(coords)
                         if idx + 1 < len(obj['steps']) and 'DURING WRITING' in obj['steps'][idx + 1]:
-                            during_writing_audio = test_ai_sound.get_audio(obj['steps'][idx + 1]['DURING WRITING'])
+                            during_writing_audio = sound.get_audio(obj['steps'][idx + 1]['DURING WRITING'])
                             encoded_audio = base64.b64encode(during_writing_audio).decode('utf-8')
                             steps.append([coords, encoded_audio])
                         else:
                             steps.append(coords)
 
                     elif 'DURING WRITING' in step:
-                        continue  # Skip as it is handled with 'WRITE'
+                        continue  
 
                     elif 'PAUSE' in step:
-                        audio_bytes = test_ai_sound.get_audio(step['PAUSE'])
+                        audio_bytes = sound.get_audio(step['PAUSE'])
                         encoded_audio = base64.b64encode(audio_bytes).decode('utf-8')
                         steps.append(encoded_audio)
 
                     elif 'STOP' in step:
-                        audio_bytes = test_ai_sound.get_audio(step['STOP'])
+                        audio_bytes = sound.get_audio(step['STOP'])
                         encoded_audio = base64.b64encode(audio_bytes).decode('utf-8')
                         steps.append(encoded_audio)
 
@@ -102,18 +160,5 @@ def generate_slides():
         print(e)
         return jsonify({'error': str(e)}), 500
 
-@app.route('/get_audio', methods=['POST'])
-def get_audio():
-    try:
-        audio_bytes = test_ai_sound.get_audio("Ayush you should stop being a bum and go do your python course.")
-        encoded_audio = base64.b64encode(audio_bytes).decode('utf-8')
-        response = {
-            'audio': encoded_audio
-        }
-        return jsonify(response)
-    except Exception as e:
-        print(e)
-        return jsonify({'error': str(e)}), 500
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
