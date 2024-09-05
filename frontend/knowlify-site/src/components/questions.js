@@ -53,7 +53,8 @@ const Question = ({ onUpdate, currentSlideJson }) => {
 
   return (
     <div>
-      <h2>Ask a question</h2>
+      <div className = "separator"></div>
+      <h2>Q & A</h2>
       <button onClick={isListening ? handleStopListening : handleListen}>
         {isListening ? 'Stop Listening' : 'Start Listening'}
       </button>

@@ -184,29 +184,6 @@ const Lecture = ({ actions = [], currentSlide = 0, idx, setIdx }) => {
 
   return (
     <div>
-      {/* Top bar with control buttons and seek bar */}
-      <div className="top-bar">
-        <button className="left-arr" onClick={handlePreviousAction} disabled={idx === 0}>
-          &larr; Previous
-        </button>
-        <button className="pause" onClick={handlePauseResume}>
-          {isPaused ? '| |' : '>'}
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={duration}
-          value={currentTime}
-          step={0.001}
-          onChange={(e) => handleSeek(parseFloat(e.target.value))}
-          className="seek-bar"
-        />
-        <div className="timer">{`${currentTime.toFixed(1)}/${duration.toFixed(1)} seconds`}</div>
-        <button className="right-arr" onClick={handleNextAction} disabled={actions[currentSlide] && idx >= actions[currentSlide].length - 1}>
-          Next &rarr;
-        </button>
-      </div>
-
       {audioBytes && (
         <AudioPlayer
           key={audioKey}
@@ -224,6 +201,34 @@ const Lecture = ({ actions = [], currentSlide = 0, idx, setIdx }) => {
         onEnded={handleDrawingEnd} 
         ref={whiteboardRef}
       />
+      <div className="pause-container">
+        <button className="pause" onClick={handlePauseResume}>
+          {isPaused ? '| |' : '>'}
+        </button>
+      </div>
+
+
+      <div style={{ marginTop: '10px' }}>
+        <input
+          type="range"
+          min={0}
+          max={duration}
+          value={currentTime}
+          step={0.001}
+          onChange={(e) => handleSeek(parseFloat(e.target.value))}
+          style={{ width: '100%' }}
+        />
+        <div className ="timer">{`${currentTime.toFixed(1)}/${duration.toFixed(1)} seconds`}</div>
+      </div>
+
+      <div style={{ marginTop: '10px' }}>
+        <button className = "left-arr" onClick={handlePreviousAction} disabled={idx === 0}>
+          &larr; Previous
+        </button>
+        <button className = "right-arr" onClick={handleNextAction} disabled={actions[currentSlide] && idx >= actions[currentSlide].length - 1}>
+          Next &rarr;
+        </button>
+      </div>
     </div>
   );
 };
