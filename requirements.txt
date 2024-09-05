@@ -109,6 +109,6 @@ yarl==1.9.4
 google-cloud-texttospeech==2.17.0
 python-dotenv==1.0.0
 Flask-SocketIO==5.3.3
+eventlet==0.33.0
 gunicorn==20.1.0
-gevent==21.12.0
-
+wheel
