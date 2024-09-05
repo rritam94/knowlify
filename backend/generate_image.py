@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 X_DIMENSION = 3400
 Y_DIMENSION = 4400
-PRIMARY_FONT_PATH = 'Caveat-VariableFONT_wght.ttf'
+PRIMARY_FONT_PATH = 'Caveat-VariableFont_wght.ttf'
 FALLBACK_FONT_PATH = 'DejaVuSans.ttf'
 FONT_SIZE = 20
 
