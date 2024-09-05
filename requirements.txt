@@ -110,5 +110,5 @@ google-cloud-texttospeech==2.17.0
 python-dotenv==1.0.0
 Flask-SocketIO==5.3.3
 gunicorn==20.1.0
-dnspython==2.2.1
-eventlet==0.33.0
+gevent==21.12.0
+
