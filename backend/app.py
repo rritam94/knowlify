@@ -9,13 +9,14 @@ import json
 import base64
 import numpy as np  
 from flask_socketio import SocketIO, emit
-import eventlet
+from gevent import monkey
 
-eventlet.monkey_patch()  # Required for using eventlet with Flask-SocketIO
+# Apply gevent monkey patch for concurrency
+monkey.patch_all()
 
 app = Flask(__name__)
 CORS(app, origins='http://localhost:3000')
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000", async_mode="gevent")
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
