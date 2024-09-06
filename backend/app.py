@@ -9,10 +9,14 @@ import json
 import base64
 import numpy as np  
 from flask_socketio import SocketIO, emit
+import eventlet
+
+# Apply eventlet monkey patch for concurrency
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 CORS(app, origins='http://localhost:3000')
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000", async_mode="eventlet")
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
@@ -161,4 +165,4 @@ def answer_question():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000)
