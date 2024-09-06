@@ -21,11 +21,13 @@ const Slideshow = ({ slides, currentSlide, onSlideChange, setIdx }) => {
     <div className="slideshow-container">
       <div className="slideshow-content">
         <h2>{slides[currentSlide].title}</h2>
-        <ul>
-          {slides[currentSlide].points.map((point, index) => (
-            <li key={index} style={{ marginBottom: '10px' }}>{point}</li>
-          ))}
-        </ul>
+        {slides[currentSlide].points && slides[currentSlide].points.length > 0 && (
+          <ul>
+            {slides[currentSlide].points.map((point, index) => (
+              <li key={index} style={{ marginBottom: '10px' }}>{point}</li>
+            ))}
+          </ul>
+        )}
         <button className="prev" onClick={prevSlide} disabled={currentSlide === 0}>
           &lt;
         </button>
