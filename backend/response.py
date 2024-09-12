@@ -31,7 +31,7 @@ def send_request(url, data):
     response = requests.post(url, json=data)
     return response.text
 
-def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
+def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
     found_title = False
     title = ''
 
@@ -82,6 +82,7 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
     for chunk in completion:
         if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content is not None:
             content = chunk.choices[0].delta.content
+
             total_content += content
     
             if '题' in content.lower():
@@ -95,7 +96,8 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
                     title = title[4:]
                     response = {
                         "slide_number": current_slide,
-                        "title": title
+                        "title": title,
+                        "uuid": uuid,
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
@@ -114,12 +116,12 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
                     bullet_points = bullet_points[3:]
                     bullet_points += ']'
                     single_line_string = " ".join(bullet_points.split())
-                    print(single_line_string)
                     bullet_points_list = ast.literal_eval(single_line_string)
 
                     response = {
                         "slide_number": current_slide,
-                        "bullet_points": bullet_points_list
+                        "bullet_points": bullet_points_list,
+                        "uuid": uuid
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
@@ -146,7 +148,8 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
 
                     response = {
                         "slide_number": current_slide,
-                        "start": start_sound
+                        "start": start_sound,
+                        "uuid": uuid
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
@@ -198,7 +201,8 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
                     response = {
                         "slide_number": current_slide,
                         "coords": coords,
-                        "during_writing": during_drawing_sound
+                        "during_writing": during_drawing_sound,
+                        "uuid": uuid
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
@@ -249,7 +253,8 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
                     response = {
                         "slide_number": current_slide,
                         "coords": coords,
-                        "during_writing": during_writing_sound
+                        "during_writing": during_writing_sound,
+                        "uuid": uuid
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
@@ -276,7 +281,8 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
 
                     response = {
                         "slide_number": current_slide,
-                        "pause": pause_sound
+                        "pause": pause_sound,
+                        "uuid": uuid
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
@@ -303,7 +309,8 @@ def complete_api_request(prompt, pdf, current_slide=0, max_tokens=3000):
 
                     response = {
                         "slide_number": current_slide,
-                        "stop": stop_sound
+                        "stop": stop_sound,
+                        "uuid": uuid
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))

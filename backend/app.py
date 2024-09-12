@@ -8,11 +8,11 @@ import image_processing
 import json
 import base64
 import numpy as np  
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
 CORS(app, origins='http://localhost:3000')
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
@@ -26,19 +26,25 @@ def convert_to_serializable(obj):
     else:
         raise TypeError(f"Type {type(obj)} not serializable")
 
+@socketio.on('join')
+def handle_join(room):
+    join_room(room)
+
 @app.route('/generate_slides', methods=['POST'])
 def generate_slides():
+    print("in here")
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 
     pdf = request.files['pdf']
+    uuid = request.form['uuid']
     print(pdf)
 
     if pdf.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
     try:
-        slideshow_gen_json.generate_json(pdf.read())
+        slideshow_gen_json.generate_json(pdf.read(), uuid)
         return jsonify({"successful": "success"}), 200
     
     except Exception as e:
@@ -48,43 +54,51 @@ def generate_slides():
 @app.route('/title', methods=['POST'])
 def title():
     data = request.json
-    socketio.emit('title_data', data)
+    uuid = data['uuid']
+    print(uuid)
+    socketio.emit('title_data', data, room = uuid)
     return 'Title received', 200
 
 @app.route('/bullet_points', methods=['POST'])
 def bullet_points():
     data = request.json
-    socketio.emit('bullet_points_data', data)
+    uuid = data['uuid']
+    socketio.emit('bullet_points_data', data, room = uuid)
     return 'Bullet Points Received', 200
 
 @app.route('/start', methods=['POST'])
 def start():
     data = request.json
-    socketio.emit('start_data', data)
+    uuid = data['uuid']
+    socketio.emit('start_data', data, room = uuid)
     return 'Start Audio Received', 200
 
 @app.route('/write', methods=['POST'])
 def write():
     data = request.json
-    socketio.emit('write_data', data)
+    uuid = data['uuid']
+    socketio.emit('write_data', data, room = uuid)
     return 'Write Coords Received', 200
 
 @app.route('/during_writing', methods=['POST'])
 def during_writing():
     data = request.json
-    socketio.emit('during_writing_data', data)
+    uuid = data['uuid']
+    socketio.emit('during_writing_data', data, room = uuid)
     return 'During Writing Audio Received', 200
 
 @app.route('/pause', methods=['POST'])
 def pause():
     data = request.json
-    socketio.emit('pause_data', data)
+    uuid = data['uuid']
+    socketio.emit('pause_data', data, room = uuid)
     return 'Pause Audio Received', 200
 
 @app.route('/stop', methods=['POST'])
 def stop():
     data = request.json
-    socketio.emit('stop_data', data)
+    uuid = data['uuid']
+    socketio.emit('stop_data', data, room = uuid)
     return 'Stop Audio Received', 200
     
 @app.route('/answer_question', methods=['POST'])
@@ -161,4 +175,4 @@ def answer_question():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000)
+    socketio.run(app, port=5000, debug=True)

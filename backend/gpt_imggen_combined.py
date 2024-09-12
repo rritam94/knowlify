@@ -192,5 +192,4 @@ def generate_python_code(prompt, context=''):
             error = str(e)
             print(f"Execution failed: {e}. Trying again...")
     
-    image.show()
     return image

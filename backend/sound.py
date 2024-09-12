@@ -11,7 +11,7 @@ def get_audio(text):
     )
 
     audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
+        audio_encoding=texttospeech.AudioEncoding.LINEAR16
     )
 
     response = client.synthesize_speech(
