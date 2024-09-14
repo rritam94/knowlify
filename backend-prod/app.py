@@ -11,8 +11,8 @@ import numpy as np
 from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
-CORS(app, origins='http://knowlify.net')
-socketio = SocketIO(app, cors_allowed_origins="http://knowlify.net")
+CORS(app, origins='http://knowlify-frontend-production.up.railway.app')
+socketio = SocketIO(app, cors_allowed_origins="http://knowlify-frontend-production.up.railway.app")
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
@@ -32,7 +32,6 @@ def handle_join(room):
 
 @app.route('/generate_slides', methods=['POST'])
 def generate_slides():
-    print("in here")
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 

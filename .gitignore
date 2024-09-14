@@ -2,5 +2,6 @@ backend/node_modules/
 backend/.env
 backend/__pycache__
 service_key.json
+backend-prod/.env
 myenv/
 k8s/
