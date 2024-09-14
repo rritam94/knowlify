@@ -25,7 +25,7 @@ const Question = ({ onUpdate, currentSlideJson }) => {
     SpeechRecognition.stopListening();
 
     try {
-      const response = await fetch('http://localhost:5000/answer_question', {
+      const response = await fetch('http://knowlify.railway.internal/answer_question', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -12,7 +12,7 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
     const generatedUUID = uuidv4();
     setUUID(generatedUUID);
 
-    socketRef.current = io('http://knowlify.us-east-2.elasticbeanstalk.com');
+    socketRef.current = io('http://knowlify.railway.internal');
 
     return () => {
       if (socketRef.current) {
@@ -132,7 +132,7 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
       formData.append('uuid', uuidStorage);
 
       try {
-        const response = await fetch('http://localhost:5000/generate_slides', {
+        const response = await fetch('http://knowlify.railway.internal/generate_slides', {
           method: 'POST',
           body: formData,
         });
