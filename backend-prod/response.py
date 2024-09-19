@@ -6,14 +6,11 @@ import generate_image
 import image_processing
 import requests
 import ast
-import openai
+from openai import OpenAI
 import gpt_imggen_combined
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-openai.api_key = os.getenv("OPEN_AI_KEY")
+client = OpenAI()
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
@@ -61,8 +58,8 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
 
     last_y = 10
     image = generate_image.create_image()
-
-    completion = openai.ChatCompletion.create(
+    print('before completion')
+    completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": entire_prompt},
@@ -74,8 +71,8 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
         top_p=1,
         frequency_penalty = 0,
         presence_penalty = 0,
-        max_retries=3,
     )
+    print('after completions')
 
     content = ''
     total_content = ''
@@ -83,7 +80,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
     for chunk in completion:
         if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content is not None:
             content = chunk.choices[0].delta.content
-
+            print(content)
             total_content += content
     
             if '题' in content.lower():
@@ -102,7 +99,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('http://knowlify.us-east-2.elasticbeanstalk.com/title', serializable_response)
+                    send_request('https://knowlify-backend-production.up.railway.app/title', serializable_response)
                     title = ''
                     found_title = False
 
@@ -126,7 +123,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('http://knowlify.us-east-2.elasticbeanstalk.com/bullet_points', serializable_response)
+                    send_request('https://knowlify-backend-production.up.railway.app/bullet_points', serializable_response)
 
                     bullet_points = ''
                     found_bullet_points = False
@@ -155,7 +152,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('http://knowlify.us-east-2.elasticbeanstalk.com/start', serializable_response)
+                    send_request('https://knowlify-backend-production.up.railway.app/start', serializable_response)
                     
                     start = ''
                     found_start = False
@@ -209,7 +206,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('http://knowlify.us-east-2.elasticbeanstalk.com/during_writing', serializable_response)
+                    send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
                     
                     during_drawing = ''
                     found_during_drawing = False
@@ -262,7 +259,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('http://knowlify.us-east-2.elasticbeanstalk.com/during_writing', serializable_response)
+                    send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
                     
                     during_writing = ''
                     found_during_writing = False
@@ -291,7 +288,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('http://knowlify.us-east-2.elasticbeanstalk.com/pause', serializable_response)
+                    send_request('https://knowlify-backend-production.up.railway.app/pause', serializable_response)
 
                     pause = ''
                     found_pause = False
@@ -320,7 +317,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('http://knowlify.us-east-2.elasticbeanstalk.com/stop', serializable_response)
+                    send_request('https://knowlify-backend-production.up.railway.app/stop', serializable_response)
 
                     stop = ''
                     found_stop = False
@@ -341,7 +338,7 @@ def read_file_in_chunks(file_path, chunk_size=1024):
 
 def answer_question(prompt, question):
 
-    completion = openai.ChatCompletion.create(
+    completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": prompt},

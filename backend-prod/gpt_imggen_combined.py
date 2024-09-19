@@ -1,16 +1,13 @@
 import os
-import openai
+from openai import OpenAI
 import time
 from PIL import Image, ImageDraw, ImageFont
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-openai.api_key = os.getenv("OPEN_AI_KEY")
+client = OpenAI()
 
 def generate_text(prompt):
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
@@ -80,7 +77,7 @@ def generate_png_from_mermaid(input_file, output_file=None):
     return img
 
 def generate_mermaid_code(prompt):
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an assistant that generates Mermaid code for diagrams."},
@@ -154,7 +151,7 @@ def generate_python_code(prompt, context=''):
     while not success:
         image = None
         
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": '''

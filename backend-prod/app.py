@@ -11,8 +11,8 @@ import numpy as np
 from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
-CORS(app, origins='http://knowlify-frontend-production.up.railway.app')
-socketio = SocketIO(app, cors_allowed_origins="http://knowlify-frontend-production.up.railway.app")
+CORS(app, origins='https://knowlify-frontend-production.up.railway.app')
+socketio = SocketIO(app, cors_allowed_origins="https://knowlify-frontend-production.up.railway.app")
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):

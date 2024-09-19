@@ -12,7 +12,10 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
     const generatedUUID = uuidv4();
     setUUID(generatedUUID);
 
-    socketRef.current = io('http://knowlify-backend-production.up.railway.app');
+    socketRef.current = io('https://knowlify-7ato.onrender.com', {
+      withCredentials: true,
+      transports: ['websocket']
+    });
 
     return () => {
       if (socketRef.current) {
@@ -132,7 +135,7 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
       formData.append('uuid', uuidStorage);
 
       try {
-        const response = await fetch('http://knowlify-backend-production.up.railway.app/generate_slides', {
+        const response = await fetch('https://knowlify-7ato.onrender.com/generate_slides', {
           method: 'POST',
           body: formData,
         });
