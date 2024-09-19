@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import slideshow_gen_json
 import google_slides_gen
 import sound
@@ -31,6 +31,7 @@ def handle_join(room):
     join_room(room)
 
 @app.route('/generate_slides', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def generate_slides():
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file part'}), 400
@@ -51,6 +52,7 @@ def generate_slides():
         return jsonify({'error': str(e)}), 500
     
 @app.route('/title', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def title():
     data = request.json
     uuid = data['uuid']
@@ -59,6 +61,7 @@ def title():
     return 'Title received', 200
 
 @app.route('/bullet_points', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def bullet_points():
     data = request.json
     uuid = data['uuid']
@@ -66,6 +69,7 @@ def bullet_points():
     return 'Bullet Points Received', 200
 
 @app.route('/start', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def start():
     data = request.json
     uuid = data['uuid']
@@ -73,6 +77,7 @@ def start():
     return 'Start Audio Received', 200
 
 @app.route('/write', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def write():
     data = request.json
     uuid = data['uuid']
@@ -80,6 +85,7 @@ def write():
     return 'Write Coords Received', 200
 
 @app.route('/during_writing', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def during_writing():
     data = request.json
     uuid = data['uuid']
@@ -87,6 +93,7 @@ def during_writing():
     return 'During Writing Audio Received', 200
 
 @app.route('/pause', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def pause():
     data = request.json
     uuid = data['uuid']
@@ -94,6 +101,7 @@ def pause():
     return 'Pause Audio Received', 200
 
 @app.route('/stop', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def stop():
     data = request.json
     uuid = data['uuid']
@@ -101,6 +109,7 @@ def stop():
     return 'Stop Audio Received', 200
     
 @app.route('/answer_question', methods=['POST'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def answer_question():
     data = request.get_json()
     slide = data.get('slide', '')
