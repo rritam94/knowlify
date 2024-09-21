@@ -99,7 +99,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://knowlify-backend-production.up.railway.app/title', serializable_response)
+                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/title', serializable_response)
                     title = ''
                     found_title = False
 
@@ -123,7 +123,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://knowlify-backend-production.up.railway.app/bullet_points', serializable_response)
+                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/bullet_points', serializable_response)
 
                     bullet_points = ''
                     found_bullet_points = False
@@ -152,7 +152,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://knowlify-backend-production.up.railway.app/start', serializable_response)
+                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/start', serializable_response)
                     
                     start = ''
                     found_start = False
@@ -206,7 +206,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
+                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/during_writing', serializable_response)
                     
                     during_drawing = ''
                     found_during_drawing = False
@@ -259,7 +259,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
+                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/during_writing', serializable_response)
                     
                     during_writing = ''
                     found_during_writing = False
@@ -288,7 +288,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://knowlify-backend-production.up.railway.app/pause', serializable_response)
+                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/pause', serializable_response)
 
                     pause = ''
                     found_pause = False
@@ -317,7 +317,7 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
                     }
 
                     serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://knowlify-backend-production.up.railway.app/stop', serializable_response)
+                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/stop', serializable_response)
 
                     stop = ''
                     found_stop = False

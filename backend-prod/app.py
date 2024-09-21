@@ -11,8 +11,8 @@ import numpy as np
 from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
-CORS(app, origins='https://knowlify-frontend-production.up.railway.app')
-socketio = SocketIO(app, cors_allowed_origins="https://knowlify-frontend-production.up.railway.app")
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
@@ -30,9 +30,16 @@ def convert_to_serializable(obj):
 def handle_join(room):
     join_room(room)
 
-@app.route('/generate_slides', methods=['POST'])
-@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
+@app.route('/generate_slides', methods=['POST', 'OPTIONS'])
+@cross_origin(origins="https://knowlify-frontend-production.up.railway.app/")
 def generate_slides():
+    if request.method == 'OPTIONS':
+        response = app.make_default_options_response()
+        response.headers.add("Access-Control-Allow-Origin", "https://knowlify-frontend-production.up.railway.app")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        return response
+
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 
@@ -52,7 +59,6 @@ def generate_slides():
         return jsonify({'error': str(e)}), 500
     
 @app.route('/title', methods=['POST'])
-@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def title():
     data = request.json
     uuid = data['uuid']
@@ -61,7 +67,6 @@ def title():
     return 'Title received', 200
 
 @app.route('/bullet_points', methods=['POST'])
-@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def bullet_points():
     data = request.json
     uuid = data['uuid']
@@ -69,7 +74,6 @@ def bullet_points():
     return 'Bullet Points Received', 200
 
 @app.route('/start', methods=['POST'])
-@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def start():
     data = request.json
     uuid = data['uuid']
@@ -77,7 +81,6 @@ def start():
     return 'Start Audio Received', 200
 
 @app.route('/write', methods=['POST'])
-@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def write():
     data = request.json
     uuid = data['uuid']
@@ -85,7 +88,6 @@ def write():
     return 'Write Coords Received', 200
 
 @app.route('/during_writing', methods=['POST'])
-@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def during_writing():
     data = request.json
     uuid = data['uuid']
@@ -93,7 +95,6 @@ def during_writing():
     return 'During Writing Audio Received', 200
 
 @app.route('/pause', methods=['POST'])
-@cross_origin(origins="https://knowlify-frontend-production.up.railway.app")
 def pause():
     data = request.json
     uuid = data['uuid']

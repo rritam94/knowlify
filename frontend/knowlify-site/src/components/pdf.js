@@ -12,7 +12,7 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
     const generatedUUID = uuidv4();
     setUUID(generatedUUID);
 
-    socketRef.current = io('https://knowlify-7ato.onrender.com', {
+    socketRef.current = io('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com', {
       withCredentials: true,
       transports: ['websocket']
     });
@@ -135,18 +135,28 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
       formData.append('uuid', uuidStorage);
 
       try {
-        const response = await fetch('https://knowlify-7ato.onrender.com/generate_slides', {
+        const response = await fetch('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/generate_slides', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': 'https://knowlify-frontend-production.up.railway.app'
+          },
           body: formData,
+          credentials: 'include'
         });
 
         if (response.ok) {
           setUploadStatus('File upload Successful');
-        } else {
+        }
+        
+        else {
           const errorResponse = await response.json();
           setUploadStatus(`File upload failed: ${errorResponse.error}`);
         }
-      } catch (error) {
+
+      } 
+      
+      catch (error) {
         setUploadStatus(`Error uploading file: ${error.message}`);
       }
     }
