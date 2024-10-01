@@ -58,7 +58,6 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
 
     last_y = 10
     image = generate_image.create_image()
-    print('before completion')
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -72,259 +71,267 @@ def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
         frequency_penalty = 0,
         presence_penalty = 0,
     )
-    print('after completions')
 
     content = ''
     total_content = ''
 
     for chunk in completion:
-        if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content is not None:
-            content = chunk.choices[0].delta.content
-            print(content)
-            total_content += content
-    
-            if '题' in content.lower():
-                found_title = True
+        if hasattr(chunk, 'choices'):
+            if isinstance(chunk.choices, list) and len(chunk.choices) > 0 and chunk.choices[0].delta.content != None:
+                try:
+                    content = chunk.choices[0].delta.content
+                    total_content += content
 
-            elif not (',' in content.lower()) and found_title:
-                title += content
-            
-            elif ',' in content.lower() and found_title:
-                if title[4:] != '':
-                    title = title[4:]
-                    response = {
-                        "slide_number": current_slide,
-                        "title": title,
-                        "uuid": uuid,
-                    }
+                    if content is not None:
+                        if '题' in content.lower():
+                            found_title = True
 
-                    serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/title', serializable_response)
-                    title = ''
-                    found_title = False
+                        elif not (',' in content.lower()) and found_title:
+                            title += content
+                        
+                        elif ',' in content.lower() and found_title:
+                            if title[4:] != '':
+                                title = title[4:]
+                                response = {
+                                    "slide_number": current_slide,
+                                    "title": title,
+                                    "uuid": uuid,
+                                }
+                                serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
+                                send_request('https://knowlify-backend-production.up.railway.app/title', serializable_response)
+                                print("sent title request")
+                                title = ''
+                                found_title = False
 
-            if '数' in content.lower():
-                found_bullet_points = True
+                        if '数' in content.lower():
+                            found_bullet_points = True
 
-            elif not (']' in content.lower()) and found_bullet_points:
-                bullet_points += content
-            
-            elif ']' in content.lower() and found_bullet_points:
-                if bullet_points != '':
-                    bullet_points = bullet_points[3:]
-                    bullet_points += ']'
-                    single_line_string = " ".join(bullet_points.split())
-                    bullet_points_list = ast.literal_eval(single_line_string)
+                        elif not (']' in content.lower()) and found_bullet_points:
+                            bullet_points += content
+                        
+                        elif ']' in content.lower() and found_bullet_points:
+                            if bullet_points != '':
+                                bullet_points = bullet_points[3:]
+                                bullet_points += ']'
+                                single_line_string = " ".join(bullet_points.split())
+                                bullet_points_list = ast.literal_eval(single_line_string)
 
-                    response = {
-                        "slide_number": current_slide,
-                        "bullet_points": bullet_points_list,
-                        "uuid": uuid
-                    }
+                                response = {
+                                    "slide_number": current_slide,
+                                    "bullet_points": bullet_points_list,
+                                    "uuid": uuid
+                                }
 
-                    serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/bullet_points', serializable_response)
+                                serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
+                                send_request('https://knowlify-backend-production.up.railway.app/bullet_points', serializable_response)
+                                print("sent bullet request")
+                                bullet_points = ''
+                                found_bullet_points = False
 
-                    bullet_points = ''
-                    found_bullet_points = False
+                        if '始' in content.lower():
+                            found_start = True
 
-            if '始' in content.lower():
-                found_start = True
+                        elif not ('}' in content.lower()) and found_start:
+                            start += content
+                        
+                        elif '}' in content.lower() and found_start:
+                            if start[4:] != '':
+                                for char in content.lower():
+                                    if char != '}':
+                                        start += char
+                                    else: break
 
-            elif not ('}' in content.lower()) and found_start:
-                start += content
-            
-            elif '}' in content.lower():
-                if start[4:] != '':
-                    for char in content.lower():
-                        if char != '}':
-                            start += char
-                        else: break
+                                start = start[4:-1]
+                                start_sound = sound.get_audio(start)
 
-                    start = start[4:-1]
-                    start_sound = sound.get_audio(start)
+                                response = {
+                                    "slide_number": current_slide,
+                                    "start": start_sound,
+                                    "uuid": uuid,
+                                    "content": total_content
+                                }
 
-                    response = {
-                        "slide_number": current_slide,
-                        "start": start_sound,
-                        "uuid": uuid,
-                        "content": total_content
-                    }
+                                serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
+                                send_request('https://knowlify-backend-production.up.railway.app/start', serializable_response)
+                                print("sent start request")
+                                start = ''
+                                found_start = False
 
-                    serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/start', serializable_response)
-                    
-                    start = ''
-                    found_start = False
+                        if '拉' in content.lower():
+                            found_drawing = True
+                            image = generate_image.create_image()
+                            coords = []
 
-            if '拉' in content.lower():
-                found_drawing = True
-                image = generate_image.create_image()
-                coords = []
+                        elif not ('}' in content.lower()) and found_drawing:
+                            drawing += content
+                        
+                        elif '}' in content.lower() and found_drawing:
+                            if drawing[4:] != '':
+                                for char in content.lower():
+                                    if char != '}' and char is not None:
+                                        drawing += char
 
-            elif not ('}' in content.lower()) and found_drawing:
-                drawing += content
-            
-            elif '}' in content.lower():
-                if drawing[4:] != '':
-                    for char in content.lower():
-                        if char != '}':
-                            drawing += char
-                        else: break
+                                    else: break
 
-                    drawing = drawing[4:-1]
+                                drawing = drawing[4:-1]
 
-                    image_gen = gpt_imggen_combined.generate_python_code(drawing, total_content)
-                    last_y = generate_image.add_image_to_image(image, image_gen, last_y + 5)
-                    coords = image_processing.get_coordinates_from_processed_img(image)
+                                image_gen = gpt_imggen_combined.generate_python_code(drawing, total_content)
+                                last_y = generate_image.add_image_to_image(image, image_gen, last_y + 5)
+                                coords = image_processing.get_coordinates_from_processed_img(image)
+                                print("sent drawing request")
 
-                    drawing = ''
-                    found_drawing = False
+                                drawing = ''
+                                found_drawing = False
 
-            if '图' in content.lower():
-                found_during_drawing = True
+                        if '图' in content.lower():
+                            found_during_drawing = True
 
-            elif not ('}' in content.lower()) and found_during_drawing:
-                during_drawing += content
-            
-            elif '}' in content.lower() and found_during_drawing:
-                if during_drawing[4:] != '':
-                    for char in content.lower():
-                        if char != '}':
-                            during_drawing += char
-                        else: break
+                        elif not ('}' in content.lower()) and found_during_drawing:
+                            during_drawing += content
+                        
+                        elif '}' in content.lower() and found_during_drawing:
+                            if during_drawing[4:] != '':
+                                for char in content.lower():
+                                    if char != '}' and char is not None:
+                                        during_drawing += char
 
-                    during_drawing = during_drawing[4:-1]
-                    during_drawing_sound = sound.get_audio(during_drawing)
+                                    else: break
 
-                    response = {
-                        "slide_number": current_slide,
-                        "coords": coords,
-                        "during_writing": during_drawing_sound,
-                        "uuid": uuid,
-                        "content": total_content
-                    }
+                                during_drawing = during_drawing[4:-1]
+                                during_drawing_sound = sound.get_audio(during_drawing)
 
-                    serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/during_writing', serializable_response)
-                    
-                    during_drawing = ''
-                    found_during_drawing = False
+                                response = {
+                                    "slide_number": current_slide,
+                                    "coords": coords,
+                                    "during_writing": during_drawing_sound,
+                                    "uuid": uuid,
+                                    "content": total_content
+                                }
 
-            if '写' in content.lower():
-                found_write = True
-                image = generate_image.create_image()
-                coords = []
+                                serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
+                                send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
 
-            elif not ('}' in content.lower()) and found_write:
-                write += content
-            
-            elif '}' in content.lower():
-                if write[4:] != '':
-                    for char in content.lower():
-                        if char != '}':
-                            write += char
-                        else: break
+                                during_drawing = ''
+                                found_during_drawing = False
 
-                    write = write[4:-1]
+                        if '写' in content.lower():
+                            found_write = True
+                            image = generate_image.create_image()
+                            coords = []
 
-                    last_y = generate_image.add_text_to_image(image, write, generate_image.X_DIMENSION, last_y + 5)
-                    coords = image_processing.get_coordinates_from_processed_img(image, 0, 0)
+                        elif not ('}' in content.lower()) and found_write:
+                            write += content
+                        
+                        elif '}' in content.lower() and found_write:
+                            if write[4:] != '':
+                                for char in content.lower():
+                                    if char != '}':
+                                        write += char
+                                    else: break
 
-                    write = ''
-                    found_write = False
+                                write = write[4:-1]
 
-            if '时' in content.lower():
-                found_during_writing = True
+                                last_y = generate_image.add_text_to_image(image, write, generate_image.X_DIMENSION, last_y + 5)
+                                coords = image_processing.get_coordinates_from_processed_img(image, 0, 0)
 
-            elif not ('}' in content.lower()) and found_during_writing:
-                during_writing += content
-            
-            elif '}' in content.lower() and found_during_writing:
-                if during_writing[4:] != '':
-                    for char in content.lower():
-                        if char != '}':
-                            during_writing += char
-                        else: break
+                                write = ''
+                                found_write = False
 
-                    during_writing = during_writing[4:-1]
-                    during_writing_sound = sound.get_audio(during_writing)
+                        if '时' in content.lower():
+                            found_during_writing = True
 
-                    response = {
-                        "slide_number": current_slide,
-                        "coords": coords,
-                        "during_writing": during_writing_sound,
-                        "uuid": uuid,
-                        "content": total_content
-                    }
+                        elif not ('}' in content.lower()) and found_during_writing:
+                            during_writing += content
+                        
+                        elif '}' in content.lower() and found_during_writing:
+                            if during_writing[4:] != '':
+                                for char in content.lower():
+                                    if char != '}':
+                                        during_writing += char
+                                    else: break
 
-                    serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/during_writing', serializable_response)
-                    
-                    during_writing = ''
-                    found_during_writing = False
-            
-            if '暂' in content.lower():
-                found_pause = True
+                                during_writing = during_writing[4:-1]
+                                during_writing_sound = sound.get_audio(during_writing)
 
-            elif not ('}' in content.lower()) and found_pause:
-                pause += content
-            
-            elif '}' in content.lower() and found_pause:
-                if pause[4:] != '':
-                    for char in content.lower():
-                        if char != '}':
-                            pause += char
-                        else: break
+                                response = {
+                                    "slide_number": current_slide,
+                                    "coords": coords,
+                                    "during_writing": during_writing_sound,
+                                    "uuid": uuid,
+                                    "content": total_content
+                                }
 
-                    pause = pause[4:-1]
-                    pause_sound = sound.get_audio(pause)
+                                serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
+                                send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
+                                
+                                during_writing = ''
+                                found_during_writing = False
+                            
+                        if '暂' in content.lower():
+                            found_pause = True
 
-                    response = {
-                        "slide_number": current_slide,
-                        "pause": pause_sound,
-                        "uuid": uuid,
-                        "content": total_content
-                    }
+                        elif not ('}' in content.lower()) and found_pause:
+                            pause += content
+                        
+                        elif '}' in content.lower() and found_pause:
+                            if pause[4:] != '':
+                                for char in content.lower():
+                                    if char != '}':
+                                        pause += char
+                                    else: break
 
-                    serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/pause', serializable_response)
+                                pause = pause[4:-1]
+                                pause_sound = sound.get_audio(pause)
 
-                    pause = ''
-                    found_pause = False
-            
-            if '停' in content.lower():
-                found_stop = True
+                                response = {
+                                    "slide_number": current_slide,
+                                    "pause": pause_sound,
+                                    "uuid": uuid,
+                                    "content": total_content
+                                }
 
-            elif not ('}' in content.lower()) and found_stop:
-                stop += content
-            
-            elif '}' in content.lower() and found_stop:
-                if stop[4:] != '':
-                    for char in content.lower():
-                        if char != '}':
-                            stop += char
-                        else: break
+                                serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
+                                send_request('https://knowlify-backend-production.up.railway.app/pause', serializable_response)
 
-                    stop = stop[4:-1]
-                    stop_sound = sound.get_audio(stop)
+                                pause = ''
+                                found_pause = False
+                            
+                        if '停' in content.lower():
+                            found_stop = True
 
-                    response = {
-                        "slide_number": current_slide,
-                        "stop": stop_sound,
-                        "uuid": uuid,
-                        "content": total_content
-                    }
+                        elif not ('}' in content.lower()) and found_stop:
+                            stop += content
+                        
+                        elif '}' in content.lower() and found_stop:
+                            if stop[4:] != '':
+                                for char in content.lower():
+                                    if char != '}':
+                                        stop += char
+                                    else: break
 
-                    serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                    send_request('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/stop', serializable_response)
+                                stop = stop[4:-1]
+                                stop_sound = sound.get_audio(stop)
 
-                    stop = ''
-                    found_stop = False
+                                response = {
+                                    "slide_number": current_slide,
+                                    "stop": stop_sound,
+                                    "uuid": uuid,
+                                    "content": total_content
+                                }
 
-                    last_y = 10
-                    current_slide += 1
-                    total_content = ''
+                                serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
+                                send_request('https://knowlify-backend-production.up.railway.app/stop', serializable_response)
+
+                                stop = ''
+                                found_stop = False
+
+                                last_y = 10
+                                current_slide += 1
+                                total_content = ''
+
+                except Exception as e:
+                    print(e)
+                    continue
 
     return current_slide
 

@@ -25,7 +25,7 @@ const Question = ({ onUpdate, currentSlideJson }) => {
     SpeechRecognition.stopListening();
 
     try {
-      const response = await fetch('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/answer_question', {
+      const response = await fetch('https://knowlify-backend-production.up.railway.app/answer_question', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     poppler-utils \
     tesseract-ocr \
     iputils-ping \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/* 
 
 WORKDIR /app
@@ -18,4 +19,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY / /app/
 
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "-k", "eventlet", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]

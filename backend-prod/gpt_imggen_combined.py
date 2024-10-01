@@ -171,7 +171,8 @@ def generate_python_code(prompt, context=''):
         
         content = ''
         for chunk in response:
-            content += chunk['choices'][0]['delta'].get('content', '')
+            if chunk.choices[0].delta.content is not None:
+                content += chunk.choices[0].delta.content
         
         content = content[content.find('python') + 6:-3]
         content.replace('image.show()', '')
@@ -180,13 +181,8 @@ def generate_python_code(prompt, context=''):
             exec(content, globals())
             if image is not None:
                 success = True
-                print("Image successfully generated!")
-
-            else:
-                print("Failed to generate image, trying again...")
                 
         except Exception as e:
             error = str(e)
-            print(f"Execution failed: {e}. Trying again...")
     
     return image

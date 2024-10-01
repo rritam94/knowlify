@@ -1,4 +1,4 @@
-FROM python:3.10.1-slim
+FROM python:3.10.2-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY service_key.json /app/
 COPY / /app/
 
-CMD ["gunicorn", "-b", "0.0.0.0:80", "-k", "eventlet", "app:app"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--loop", "uvloop"]

@@ -12,9 +12,10 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
     const generatedUUID = uuidv4();
     setUUID(generatedUUID);
 
-    socketRef.current = io('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com', {
+    socketRef.current = io('https://knowlify-backend-production.up.railway.app', {
       withCredentials: true,
-      transports: ['websocket']
+      transports: ['websocket', 'polling'],
+      secure: true
     });
 
     return () => {
@@ -29,6 +30,7 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
       socketRef.current.emit('join', uuidStorage);
 
       socketRef.current.on('title_data', (data) => {
+        console.log('Title JK: ' + data.title);
         setCurrentSlideJson(data.content);
         setSlides((prevSlides) => {
           if (!Array.isArray(prevSlides)) {
@@ -135,10 +137,9 @@ const PdfUpload = ({ className, setSlides, setActions, setCurrentSlideJson }) =>
       formData.append('uuid', uuidStorage);
 
       try {
-        const response = await fetch('https://ec2-18-118-153-180.us-east-2.compute.amazonaws.com/generate_slides', {
+        const response = await fetch('https://knowlify-backend-production.up.railway.app/generate_slides', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'Origin': 'https://knowlify-frontend-production.up.railway.app'
           },
           body: formData,
