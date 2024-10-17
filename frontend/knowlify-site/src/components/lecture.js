@@ -45,7 +45,7 @@ const Lecture = ({ actions = [], currentSlide = 0, idx, setIdx }) => {
   };
 
   const handleSeek = (time) => {
-    if (isNaN(time)) return; // Ensure time is a valid number
+    if (isNaN(time)) return;
 
     setIsSeeking(true);
     setCurrentTime(time);

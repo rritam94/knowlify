@@ -4,7 +4,7 @@ import pytesseract
 import re
 import response
 
-def generate_json(pdf, uuid):
+async def generate_json(pdf, uuid):
     images = convert_from_bytes(pdf)
     clean_text = ''
     current_slide = 0
@@ -22,7 +22,7 @@ def generate_json(pdf, uuid):
             clean_text = re.sub(r'[^a-zA-Z0-9\s.,;:!?\'"-]', '', text)
             clean_text = clean_text.replace('α', 'alpha').replace('β', 'beta').replace('γ', 'gamma').replace('δ', 'delta')
 
-        current_slide = response.complete_api_request(entire_prompt, clean_text, uuid, current_slide)
+        current_slide = await response.complete_api_request(entire_prompt, clean_text, uuid, current_slide)
 
             
 def answer_question(request):
