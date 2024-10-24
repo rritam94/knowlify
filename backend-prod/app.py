@@ -11,11 +11,10 @@ import generate_image
 import image_processing
 import socketio
 
-
 app = FastAPI()
 
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
-socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
+socket_app = socketio.ASGIApp(sio)
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,8 +64,9 @@ async def add_cors_header(request: Request, call_next):
 async def generate_slides(pdf: UploadFile = File(...), uuid: str = Form(...)):
     try:
         print('uuid in gs: ', uuid)
-        pdf_content = await pdf.read()
-        await slideshow_gen_json.generate_json(pdf_content, uuid)
+        pdf_content = pdf.read()
+        
+        slideshow_gen_json.generate_json(pdf_content, uuid)
         return Response(status_code=200)
     
     except Exception as e:

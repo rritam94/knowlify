@@ -28,7 +28,7 @@ async def send_request(url, data):
     response = requests.post(url, json=data)
     return response.text
 
-async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_tokens=3000):
+def complete_api_request(prompt, pdf, uuid, current_slide=0, max_tokens=3000):
     found_title = False
     title = ''
 
@@ -95,10 +95,10 @@ async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_toke
                                 response = {
                                     "slide_number": current_slide,
                                     "title": title,
-                                    "client_id": client_id,
+                                    "uuid": uuid,
                                 }
                                 serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                                await send_request('https://knowlify-backend-production.up.railway.app/title', serializable_response)
+                                send_request('https://knowlify-backend-production.up.railway.app/title', serializable_response)
                                 print("sent title request")
                                 title = ''
                                 found_title = False
@@ -116,15 +116,15 @@ async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_toke
                                 single_line_string = " ".join(bullet_points.split())
                                 print('str points bullets: ', single_line_string)
                                 bullet_points_list = ast.literal_eval(single_line_string)
-                                print('client_id from bullets: ', client_id)
+                                print('uuid from bullets: ', uuid)
                                 response = {
                                     "slide_number": current_slide,
                                     "bullet_points": bullet_points_list,
-                                    "client_id": client_id
+                                    "uuid": uuid
                                 }
 
                                 serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                                await send_request('https://knowlify-backend-production.up.railway.app/bullet_points', serializable_response)
+                                send_request('https://knowlify-backend-production.up.railway.app/bullet_points', serializable_response)
                                 print("sent bullet request")
                                 bullet_points = ''
                                 found_bullet_points = False
@@ -148,12 +148,12 @@ async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_toke
                                 response = {
                                     "slide_number": current_slide,
                                     "start": start_sound,
-                                    "client_id": client_id,
+                                    "uuid": uuid,
                                     "content": total_content
                                 }
 
                                 serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                                await send_request('https://knowlify-backend-production.up.railway.app/start', serializable_response)
+                                send_request('https://knowlify-backend-production.up.railway.app/start', serializable_response)
                                 print("sent start request")
                                 start = ''
                                 found_start = False
@@ -205,12 +205,12 @@ async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_toke
                                     "slide_number": current_slide,
                                     "coords": coords,
                                     "during_writing": during_drawing_sound,
-                                    "client_id": client_id,
+                                    "uuid": uuid,
                                     "content": total_content
                                 }
 
                                 serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                                await send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
+                                send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
 
                                 during_drawing = ''
                                 found_during_drawing = False
@@ -258,12 +258,12 @@ async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_toke
                                     "slide_number": current_slide,
                                     "coords": coords,
                                     "during_writing": during_writing_sound,
-                                    "client_id": client_id,
+                                    "uuid": uuid,
                                     "content": total_content
                                 }
 
                                 serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                                await send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
+                                send_request('https://knowlify-backend-production.up.railway.app/during_writing', serializable_response)
                                 
                                 during_writing = ''
                                 found_during_writing = False
@@ -287,12 +287,12 @@ async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_toke
                                 response = {
                                     "slide_number": current_slide,
                                     "pause": pause_sound,
-                                    "client_id": client_id,
+                                    "uuid": uuid,
                                     "content": total_content
                                 }
 
                                 serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                                await send_request('https://knowlify-backend-production.up.railway.app/pause', serializable_response)
+                                send_request('https://knowlify-backend-production.up.railway.app/pause', serializable_response)
 
                                 pause = ''
                                 found_pause = False
@@ -316,12 +316,12 @@ async def complete_api_request(prompt, pdf, client_id, current_slide=0, max_toke
                                 response = {
                                     "slide_number": current_slide,
                                     "stop": stop_sound,
-                                    "client_id": client_id,
+                                    "uuid": uuid,
                                     "content": total_content
                                 }
 
                                 serializable_response = json.loads(json.dumps(response, default=convert_to_serializable))
-                                await send_request('https://knowlify-backend-production.up.railway.app/stop', serializable_response)
+                                send_request('https://knowlify-backend-production.up.railway.app/stop', serializable_response)
 
                                 stop = ''
                                 found_stop = False
